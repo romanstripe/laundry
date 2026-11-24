@@ -34,3 +34,6 @@ export const hhmm = (t: Kst) => `${p2(t.h)}:${p2(t.min)}`
 
 /** ['PM', '05:32'] */
 export const ampm = (t: Kst): [string, string] => [t.h < 12 ? 'AM' : 'PM', `${p2(t.h % 12 || 12)}:${p2(t.min)}`]
+
+/** 문 닫는 시각: 한국시간 2027-01-01 00:00 (서버 api/_util.ts의 isClosed()와 같은 시각) */
+export const CLOSE_AT = Date.parse('2027-01-01T00:00:00+09:00')

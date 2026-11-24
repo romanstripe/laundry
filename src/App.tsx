@@ -1,16 +1,61 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ClaimSheet } from './components/ClaimSheet'
 import { DropSheet } from './components/DropSheet'
 import { Rack } from './components/Rack'
 import { ItemSheet } from './components/ItemSheet'
 import { getMe, getMine, getShelf } from './lib/api'
+import { CLOSE_AT } from './lib/time'
 import type { Item } from './lib/types'
 
 type View = { kind: 'item'; item: Item } | { kind: 'drop'; n: number } | { kind: 'claim'; n: number }
 
+/** 검은 라이트박스 간판 */
+function Sign({ children }: { children: ReactNode }) {
+  return (
+    <div className="sign">
+      <svg className="pic" viewBox="0 0 64 80" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M24 12a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" />
+        <circle cx="32" cy="33" r="1.5" fill="currentColor" stroke="none" />
+        <path d="M8 52a16 12 0 0 1 32 0z" fill="currentColor" />
+        <path d="M24 52v16a4 4 0 0 1-8 0" />
+        <path d="M44 74V58a3 3 0 0 1 6 0v-6a3 3 0 0 1 6 0v6l3-3a3 3 0 0 1 4 4l-7 10v5z" fill="currentColor" strokeWidth="2" />
+      </svg>
+      <h1>Lost &amp;<br />Found</h1>
+      <p className="kr">{children}</p>
+    </div>
+  )
+}
+
+/** 한국시간 2027-01-01 00:00 이후: 선반 대신 이 화면만 보여 준다 (api 호출도 하지 않는다) */
+function Closed() {
+  return (
+    <div className="wrap">
+      <Sign>
+        문을 닫았습니다.
+        <br />
+        2026년 분실물은 모두 처분했습니다.
+      </Sign>
+    </div>
+  )
+}
+
 export default function App() {
+  const [closed, setClosed] = useState(() => Date.now() >= CLOSE_AT)
+  // 화면을 켜 둔 채로 자정이 지나도 바뀌도록 가끔 시각을 본다
+  useEffect(() => {
+    if (closed) return
+    const t = setInterval(() => {
+      if (Date.now() >= CLOSE_AT) setClosed(true)
+    }, 15_000)
+    return () => clearInterval(t)
+  }, [closed])
+  return closed ? <Closed /> : <Shelf />
+}
+
+function Shelf() {
   const [shelf, setShelf] = useState<Item[]>([]) // /api/shelf에서 받은 것 (모두에게 같은 1분 캐시)
   const [mine, setMine] = useState<Item[]>([]) // /api/mine + 방금 맡긴 것 (사람마다 다름)
+  const [mineKnown, setMineKnown] = useState(false) // /api/mine 응답을 받았는지 (링크가 깜빡 보였다 사라지지 않게)
   const [done, setDone] = useState(false) // 선반 끝까지 받음
   const [ready, setReady] = useState(false) // 첫 페이지를 받음
   const [failed, setFailed] = useState(false)
@@ -64,6 +109,7 @@ export default function App() {
         setLiked(new Set(r.liked))
       })
       .catch(() => {})
+      .finally(() => setMineKnown(true))
     getMe().then((m) => setSlots(m.left)).catch(() => setSlots(null))
   }, [])
 
@@ -118,17 +164,7 @@ export default function App() {
   return (
     <>
       <div className="wrap">
-        <div className="sign">
-          <svg className="pic" viewBox="0 0 64 80" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M24 12a8 8 0 1 1 11 7.4c-2 .9-3 2.4-3 4.6v2" />
-            <circle cx="32" cy="33" r="1.5" fill="currentColor" stroke="none" />
-            <path d="M8 52a16 12 0 0 1 32 0z" fill="currentColor" />
-            <path d="M24 52v16a4 4 0 0 1-8 0" />
-            <path d="M44 74V58a3 3 0 0 1 6 0v-6a3 3 0 0 1 6 0v6l3-3a3 3 0 0 1 4 4l-7 10v5z" fill="currentColor" strokeWidth="2" />
-          </svg>
-          <h1>Lost &amp;<br />Found</h1>
-          <p className="kr">올해 두고 간 것을 보관합니다. 번호표가 붙은 물건을 누르면 사연을 볼 수 있습니다. 12월 31일 자정 이후 남은 물건은 일괄 처분합니다.</p>
-        </div>
+        <Sign>올해 두고 간 것을 보관합니다. 번호표가 붙은 물건을 누르면 사연을 볼 수 있습니다. 12월 31일 자정 이후 남은 물건은 일괄 처분합니다.</Sign>
 
         <Rack
           items={items}
@@ -148,17 +184,20 @@ export default function App() {
           </div>
         )}
         <p className="foot">ITEMS ON HOLD <span>{total === null ? '—' : total.toLocaleString()}</span> · 1 PERSON = 3 ITEMS</p>
-        <p className="foot foot2">
-          <button
-            className="link"
-            onClick={() => {
-              setView({ kind: 'claim', n: ++dropN.current })
-              setOpen(true)
-            }}
-          >
-            다른 폰에서 맡긴 물건 찾아가기
-          </button>
-        </p>
+        {/* 이 폰에 내가 맡긴 물건이 있으면 카드의 [찾아가기]로 충분해서 숨긴다. 다른 폰(맡긴 물건이 없는 기기)에서만 보인다. */}
+        {mineKnown && mine.length === 0 && (
+          <p className="foot foot2">
+            <button
+              className="link"
+              onClick={() => {
+                setView({ kind: 'claim', n: ++dropN.current })
+                setOpen(true)
+              }}
+            >
+              다른 폰에서 맡긴 물건 찾아가기
+            </button>
+          </p>
+        )}
       </div>
 
       <button

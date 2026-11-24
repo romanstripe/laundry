@@ -2,6 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { Timestamp } from 'firebase-admin/firestore'
 import { db } from './_firebase.js'
 import { HttpError, fail } from './_http.js'
+import { isClosed } from './_util.js'
 
 const PAGE = 20
 
@@ -15,6 +16,7 @@ const PAGE = 20
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== 'GET') throw new HttpError(405, 'method', '허용되지 않는 요청입니다')
+    if (isClosed()) throw new HttpError(403, 'closed', '문을 닫았습니다') // Cron이 지우기 전(최대 한 시간)에도 보여 주지 않는다
 
     const a = req.query.after
     const after = typeof a === 'string' && /^\d{1,15}$/.test(a) ? Number(a) : null

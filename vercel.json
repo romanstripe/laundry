@@ -1,0 +1,4 @@
+{
+  "crons": [{ "path": "/api/close", "schedule": "0 15 31 12 *" }],
+  "functions": { "api/close.ts": { "maxDuration": 300 } }
+}
