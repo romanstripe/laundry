@@ -38,7 +38,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
 
   const ask = () => {
     setErr('')
-    if (!no && !(Number.isInteger(noNum) && noNum >= 100 && noNum <= 99999)) {
+    if (!no && !(Number.isInteger(noNum) && noNum >= 10 && noNum <= 99999)) {
       setBad('no')
       setErr('보관 번호를 확인해 주세요')
       return

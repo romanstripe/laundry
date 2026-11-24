@@ -182,7 +182,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
         <span className="metoo">
           <b>{count.toLocaleString()}</b>명이 같은 걸 잃어버렸습니다
         </span>
-        {item.mine && <span className="mark">내 것</span>}
+        {item.mine && <span className="owner">내 것</span>}
         <button className="more" aria-label="더 보기" onClick={() => setPop('menu')}>
           <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r="1.3" /><circle cx="8" cy="8" r="1.3" /><circle cx="12.5" cy="8" r="1.3" /></svg>
         </button>

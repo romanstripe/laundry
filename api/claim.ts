@@ -65,7 +65,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // ── 번호 + 찾는 번호로 확인 ──
     const no = Number(body.no)
-    if (!Number.isInteger(no) || no < 100 || no > 99_999) throw new HttpError(400, 'bad_no', '보관 번호를 확인해 주세요')
+    if (!Number.isInteger(no) || no < 10 || no > 99_999) throw new HttpError(400, 'bad_no', '보관 번호를 확인해 주세요')
     const code = typeof body.claimCode === 'string' ? normalizeCode(body.claimCode) : ''
     if (code.length !== 6) throw new HttpError(400, 'bad_code', '찾는 번호는 6자리입니다') // 모양이 틀린 건 횟수에 안 센다
     await limitIp(req, 'claim', IP_LIMIT, '잠시 후 다시 시도해 주세요')

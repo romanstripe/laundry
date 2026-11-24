@@ -12,7 +12,7 @@ const PER_DEVICE = 3
 const IP_LIMIT = 30 // 1시간(ipKey가 시간마다 바뀜)
 const STORY_MIN = 5
 const STORY_MAX = 120
-const SMALL_TOTAL = 9_900 // 100~9999 (3·4자리) 칸 수
+const SMALL_TOTAL = 9_990 // 10~9999 (2·3·4자리) 칸 수
 
 const POOL = ['☂️', '🔑', '🧤', '✉️', '🎧', '📷', '🌙', '🚲', '🧳', '💤', '🧩', '🕯️', '🎈', '🧦', '🪁', '📼', '🧷', '🪞']
 
@@ -39,12 +39,12 @@ function boring(n: number): boolean {
   return n === 2026 || n === 1231
 }
 
-/** 3·4자리 칸이 80% 차면 5자리(10000~99999)도 반반 섞는다 */
+/** 2·3·4자리(10~9999) 칸이 80% 차면 5자리(10000~99999)도 반반 섞는다. 한 자리 수는 쓰지 않는다. */
 function candidates(mixFive: boolean, count = 8): number[] {
   const out = new Set<number>()
   let guard = 0
   while (out.size < count && guard++ < 200) {
-    const n = mixFive && randomInt(2) === 1 ? randomInt(10_000, 100_000) : randomInt(100, 10_000)
+    const n = mixFive && randomInt(2) === 1 ? randomInt(10_000, 100_000) : randomInt(10, 10_000)
     if (!boring(n)) out.add(n)
   }
   return [...out]

@@ -47,6 +47,16 @@ export async function makeShareImage(src: HTMLElement, pad: number): Promise<Blo
     e.removeAttribute('tabindex')
   })
 
+  // 화면에서는 사연이 칸을 넘치면 스크롤되지만, 이미지는 스크롤이 안 되니 칸을 사연 길이만큼 늘려서 끝까지 담는다.
+  const s0 = src.querySelector<HTMLElement>('.story')
+  const s1 = card.querySelector<HTMLElement>('.story')
+  if (s0 && s1 && s0.scrollHeight > s0.clientHeight + 1) {
+    const lh = parseFloat(getComputedStyle(s0).lineHeight) || 0
+    const need = lh ? Math.ceil(s0.scrollHeight / lh) * lh : s0.scrollHeight // 줄 간격 단위로 맞춰야 줄 무늬가 끊기지 않는다
+    s1.style.height = `${need}px`
+    s1.style.overflow = 'visible'
+  }
+
   const head = document.createElement('div')
   head.className = 'sh'
   head.textContent = '2026 LOST & FOUND'
@@ -63,7 +73,9 @@ export async function makeShareImage(src: HTMLElement, pad: number): Promise<Blo
 
   try {
     const h = wrap.offsetHeight
-    const k = Math.min(1, 500 / h, 320 / cardW)
+    // 너무 작아지면 읽을 수 없으니 0.55배까지만 줄이고, 그래도 안 들어가면 이미지를 세로로 늘린다.
+    const k = Math.max(0.55, Math.min(1, 500 / h, 320 / cardW))
+    fr.style.height = `${Math.max(640, h * k + 140)}px`
     if (k < 1) {
       wrap.style.transform = `scale(${k})`
       wrap.style.margin = `${(-(1 - k) * h) / 2}px 0`

@@ -90,6 +90,7 @@ function Shelf() {
   const [counts, setCounts] = useState<Record<string, number>>({}); // 누른 뒤 서버가 돌려준 최신 "나도" 수 (선반 캐시보다 새 값)
   const [view, setView] = useState<View | null>(null);
   const [open, setOpen] = useState(false);
+  const [showTop, setShowTop] = useState(false); // 한참 내려왔을 때만 "맨 위로" 버튼을 보인다
   const [slots, setSlots] = useState<number | null>(null); // 남은 칸 (모르면 null)
   const cursor = useRef<number | null | undefined>(undefined); // undefined: 첫 페이지 전, null: 끝
   const loading = useRef(false);
@@ -140,6 +141,13 @@ function Shelf() {
     getMe()
       .then((m) => setSlots(m.left))
       .catch(() => setSlots(null));
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setShowTop(window.scrollY > 800);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // 시트가 열려 있는 동안 뒤 선반이 같이 스크롤되지 않게 잠근다
@@ -201,6 +209,18 @@ function Shelf() {
     const dy = e.changedTouches[0].clientY - s.y;
     if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
   };
+
+  // 좌우 방향키로도 넘긴다 (입력칸에서 글자를 고치는 중에는 건드리지 않는다)
+  useEffect(() => {
+    if (!open || curIdx < 0) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+      if ((e.target as HTMLElement).closest("input,textarea")) return;
+      step(e.key === "ArrowRight" ? 1 : -1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
 
   const metooDone = (id: string, on: boolean, n: number) => {
     setLiked((prev) => {
@@ -265,29 +285,39 @@ function Shelf() {
             <button onClick={() => void more()}>다시 시도</button>
           </div>
         )}
-        <p className="foot foot2">
-          <button
-            className="link"
-            onClick={() => {
-              setView({ kind: "claim", n: ++dropN.current });
-              setOpen(true);
-            }}
-          >
-            다른 폰에서 맡긴 물건 찾아가기
-          </button>
-        </p>
       </div>
 
-      <button
-        className="cta"
-        onClick={() => {
-          setView({ kind: "drop", n: ++dropN.current });
-          setOpen(true);
-        }}
-      >
-        <span>물건 맡기기</span>
-        <small>남은 칸 {slots ?? "-"}/3</small>
-      </button>
+      {showTop && !open && (
+        <button
+          className="totop"
+          aria-label="맨 위로"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+        >
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3 10 5-5 5 5" /></svg>
+        </button>
+      )}
+
+      <div className="dock">
+        <button
+          className="cta"
+          onClick={() => {
+            setView({ kind: "drop", n: ++dropN.current });
+            setOpen(true);
+          }}
+        >
+          <span>물건 맡기기</span>
+          <small>{slots ?? "-"}/3</small>
+        </button>
+        <button
+          className="cta find"
+          onClick={() => {
+            setView({ kind: "claim", n: ++dropN.current });
+            setOpen(true);
+          }}
+        >
+          <span>찾아가기</span>
+        </button>
+      </div>
 
       <div className={open ? "open" : ""}>
         <div className="dim" onClick={() => setOpen(false)} />
