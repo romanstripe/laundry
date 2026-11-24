@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ClaimSheet } from './components/ClaimSheet'
 import { DropSheet } from './components/DropSheet'
 import { Rack } from './components/Rack'
 import { ItemSheet } from './components/ItemSheet'
 import { getMe, getMine, getShelf } from './lib/api'
 import type { Item } from './lib/types'
 
-type View = { kind: 'item'; item: Item } | { kind: 'drop'; n: number }
+type View = { kind: 'item'; item: Item } | { kind: 'drop'; n: number } | { kind: 'claim'; n: number }
 
 export default function App() {
   const [shelf, setShelf] = useState<Item[]>([]) // /api/shelf에서 받은 것 (모두에게 같은 1분 캐시)
@@ -101,6 +102,13 @@ export default function App() {
     setMine((prev) => prev.filter((i) => i.id !== id))
   }
 
+  // 찾아간 물건: 사연을 지우고 선반에는 흐린 빈 옷걸이("주인이 찾아감")로 남긴다. 칸이 하나 돌아온다.
+  const claimed = (id: string) => {
+    setShelf((prev) => prev.map((i) => (i.id === id ? { ...i, gone: true, story: '', metoo: 0 } : i)))
+    setMine((prev) => prev.filter((i) => i.id !== id))
+    getMe().then((m) => setSlots(m.left)).catch(() => {})
+  }
+
   const dropped = (item: Item) => {
     setMine((prev) => [item, ...prev])
     setSlots((s) => (s === null ? s : Math.max(0, s - 1)))
@@ -140,6 +148,17 @@ export default function App() {
           </div>
         )}
         <p className="foot">ITEMS ON HOLD <span>{total === null ? '—' : total.toLocaleString()}</span> · 1 PERSON = 3 ITEMS</p>
+        <p className="foot foot2">
+          <button
+            className="link"
+            onClick={() => {
+              setView({ kind: 'claim', n: ++dropN.current })
+              setOpen(true)
+            }}
+          >
+            다른 폰에서 맡긴 물건 찾아가기 (삭제 코드)
+          </button>
+        </p>
       </div>
 
       <button
@@ -165,7 +184,14 @@ export default function App() {
                 metoo={counts[view.item.id] ?? view.item.metoo}
                 onMetoo={metooDone}
                 onReported={reported}
+                onClaimed={(id) => {
+                  claimed(id)
+                  setOpen(false)
+                }}
               />
+            )}
+            {view?.kind === 'claim' && (
+              <ClaimSheet key={view.n} onClaimed={claimed} onClose={() => setOpen(false)} />
             )}
             {view?.kind === 'drop' && (
               <DropSheet key={view.n} slotsLeft={slots} onDropped={dropped} onClose={() => setOpen(false)} />

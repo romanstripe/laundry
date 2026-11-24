@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { ApiError, report, toggleMetoo, type ReportReason } from '../lib/api'
+import { ApiError, claimById, report, toggleMetoo, type ReportReason } from '../lib/api'
 import type { Item } from '../lib/types'
+import { ClaimConfirm, ClaimForm } from './ClaimForm'
 import { Sticker } from './Sticker'
 
 const REASONS: [ReportReason, string][] = [
@@ -34,10 +35,33 @@ interface Props {
   onMetoo: (id: string, on: boolean, metoo: number) => void
   /** 신고로 숨겨졌으면 hidden=true */
   onReported: (id: string, hidden: boolean) => void
+  /** 찾아가기가 끝났을 때 (카드가 찢어지는 모션 뒤에 불린다) */
+  onClaimed: (id: string) => void
 }
 
 /** 카드 + "N명이 같은 걸 잃어버렸어요" 줄 + ⋯ 메뉴. 카드 위 이모지가 곧 "나도" 버튼이다. */
-export function ItemSheet({ item, liked, metoo, onMetoo, onReported }: Props) {
+export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }: Props) {
+  // 찾아가기: 'mine' = 내 폰에서 바로(확인 한 번), 'code' = 삭제 코드 입력
+  const [claim, setClaim] = useState<null | 'ask' | 'code'>(null)
+  const [claimBusy, setClaimBusy] = useState(false)
+  const tear = (id: string) => {
+    card.current?.classList.add('torn')
+    setTimeout(() => onClaimed(id), 550)
+  }
+  const claimMine = async () => {
+    setClaimBusy(true)
+    setMsg('')
+    try {
+      const r = await claimById(item.id)
+      tear(r.id)
+    } catch (e) {
+      setMsg(e instanceof ApiError ? e.message : '잠시 후 다시 해 주세요')
+      setClaim(null)
+    } finally {
+      setClaimBusy(false)
+    }
+  }
+
   const [me, setMe] = useState(liked)
   const [count, setCount] = useState(metoo)
   const [msg, setMsg] = useState('')
@@ -153,15 +177,29 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported }: Props) {
         <span className="metoo">
           <b>{count.toLocaleString()}</b>명이 같은 걸 잃어버렸어요
         </span>
-        {!item.mine && (
+        {item.mine ? (
+          claim !== 'ask' && <button className="btn mine" onClick={() => setClaim('ask')}>찾아가기</button>
+        ) : (
           <button className="more" aria-label="더 보기" onClick={() => setPop('menu')}>⋯</button>
         )}
       </div>
+      {item.mine && claim === 'ask' && (
+        <ClaimConfirm busy={claimBusy} onYes={() => void claimMine()} onNo={() => setClaim(null)} />
+      )}
+      {!item.mine && claim === 'code' && <ClaimForm no={item.no} onDone={tear} />}
       {msg && <p className="err" role="alert">{msg}</p>}
       {me && !item.mine && <p className="hint">나도 눌렀어요. 이모지를 한 번 더 누르면 취소돼요.</p>}
 
       {pop === 'menu' && (
         <Pop onClose={() => setPop(null)}>
+          <button
+            onClick={() => {
+              setPop(null)
+              setClaim('code')
+            }}
+          >
+            삭제 코드 입력하기
+          </button>
           <button onClick={() => setPop('reasons')}>신고하기</button>
         </Pop>
       )}

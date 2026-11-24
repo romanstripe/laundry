@@ -335,3 +335,17 @@ textarea:focus,.emoin:focus{outline:2px solid var(--accent);outline-offset:2px}
 .pop button{display:block;text-align:left;font:500 14px var(--font);padding:13px 14px;border:1px solid var(--fg);background:#fff;color:var(--fg);cursor:pointer}
 .pop button:disabled{opacity:.5}
 .pop button.x{border:0;background:none;color:var(--muted);text-align:center;text-decoration:underline;text-underline-offset:2px;font-size:13px;padding:8px}
+
+/* 찾아가기 */
+@keyframes tear{to{transform:translate(30px,60px) rotate(14deg);opacity:0}}
+.chk.torn .stub,.chk.torn .perf,.chk.p2.torn,.chk.p3.torn,.chk.p4.torn,.chk.p5.torn,.chk.p6.torn,.chk.p7.torn,.chk.p8.torn,.chk.p9.torn,.chk.p10.torn,.chk.p11.torn,.chk.p12.torn{animation:tear .5s ease-in forwards}
+.btn{font:500 13px var(--font);border:1px solid var(--fg);background:#fff;color:var(--fg);padding:8px 12px;cursor:pointer}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.dark{background:var(--fg);color:#fff}
+.btn.mine{margin-left:auto;padding:6px 12px;font-size:12px}
+.cdin{flex:1;min-width:0;font:600 16px var(--mono);letter-spacing:.1em;padding:9px 10px;border:1.5px solid var(--fg);background:#fff}
+.cdin.bad{border-color:#C8323B}
+.claimbox{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);padding:12px}
+.claimbox .row{display:flex;gap:8px}
+.link{font:12px var(--font);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer}
+.foot2{text-align:center;margin:-6px 0 0}
