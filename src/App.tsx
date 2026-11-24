@@ -1,16 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { DropSheet } from './components/DropSheet'
 import { Rack } from './components/Rack'
 import { Sticker } from './components/Sticker'
+import { getMe } from './lib/api'
 import { FAKE_TOTAL, MAX_FAKE_PAGES, fetchPage } from './lib/fakeData'
 import type { Item } from './lib/types'
 
+type View = { kind: 'item'; item: Item } | { kind: 'drop'; n: number }
+
 export default function App() {
   const [items, setItems] = useState<Item[]>([])
-  const [current, setCurrent] = useState<Item | null>(null)
+  const [view, setView] = useState<View | null>(null)
   const [open, setOpen] = useState(false)
+  const [slots, setSlots] = useState<number | null>(null) // 남은 칸 (모르면 null)
+  const [total, setTotal] = useState(FAKE_TOTAL)
   const page = useRef(0)
   const loading = useRef(false)
   const sentinel = useRef<HTMLDivElement>(null)
+  const dropN = useRef(0) // 맡기기 시트를 열 때마다 새로 시작하려고 쓰는 key
 
   const more = useCallback(async () => {
     if (loading.current || page.current >= MAX_FAKE_PAGES) return
@@ -30,12 +37,24 @@ export default function App() {
     return () => io.disconnect()
   }, [items.length, more])
 
+  // 남은 칸: GET /api/me. 실패하면(예: api 없이 vite만 켠 경우) 모른 채로 둔다.
+  useEffect(() => {
+    getMe().then((m) => setSlots(m.left)).catch(() => setSlots(null))
+  }, [])
+
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false)
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
+
+  const dropped = (item: Item) => {
+    // 선반은 1분 캐시라, 방금 맡긴 건 프론트에서 바로 맨 앞에 끼워 넣는다.
+    setItems((prev) => [item, ...prev])
+    setSlots((s) => (s === null ? s : Math.max(0, s - 1)))
+    setTotal((t) => t + 1)
+  }
 
   return (
     <>
@@ -54,28 +73,42 @@ export default function App() {
 
         <Rack
           items={items}
-          onPick={(it) => {
-            setCurrent(it)
+          onPick={(item) => {
+            setView({ kind: 'item', item })
             setOpen(true)
           }}
         />
         <div className="sentinel" ref={sentinel} />
-        <p className="foot">ITEMS ON HOLD <span>{FAKE_TOTAL.toLocaleString()}</span> · 1 PERSON = 3 ITEMS</p>
+        <p className="foot">ITEMS ON HOLD <span>{total.toLocaleString()}</span> · 1 PERSON = 3 ITEMS</p>
       </div>
+
+      <button
+        className="cta"
+        onClick={() => {
+          setView({ kind: 'drop', n: ++dropN.current })
+          setOpen(true)
+        }}
+      >
+        <span>물건 맡기기</span>
+        <small>남은 칸 {slots ?? '-'}/3</small>
+      </button>
 
       <div className={open ? 'open' : ''}>
         <div className="dim" onClick={() => setOpen(false)} />
         <div className="sheet" role="dialog" aria-modal="true" aria-hidden={!open}>
           <div className="in">
-            {current && (
+            {view?.kind === 'item' && (
               <>
-                <Sticker key={current.id} item={current} />
+                <Sticker key={view.item.id} item={view.item} />
                 <div className="acts" style={{ marginTop: 8 }}>
                   <span className="metoo">
-                    <b>{current.metoo.toLocaleString()}</b>명이 같은 걸 잃어버렸어요
+                    <b>{view.item.metoo.toLocaleString()}</b>명이 같은 걸 잃어버렸어요
                   </span>
                 </div>
               </>
+            )}
+            {view?.kind === 'drop' && (
+              <DropSheet key={view.n} slotsLeft={slots} onDropped={dropped} onClose={() => setOpen(false)} />
             )}
           </div>
         </div>

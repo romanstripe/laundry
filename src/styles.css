@@ -287,3 +287,25 @@ button{font-family:inherit}
 .sb .pr{border:1.5px solid #111;padding:2px 8px;display:flex;gap:18px;align-items:baseline;font:500 13px Archivo,sans-serif}
 .sb .pr b{font:500 24px Archivo,sans-serif}.sb .pr b small{font-size:11px}
 .sb .emo{font-size:40px;line-height:1}
+
+/* ── 맡기기 (CTA + 시트 안 폼) ── */
+.cta{position:fixed;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom));width:min(460px,calc(100% - 32px));
+  font:700 16px var(--font);padding:15px;border:0;background:var(--fg);color:#fff;cursor:pointer;letter-spacing:.02em;display:flex;justify-content:space-between;align-items:center;z-index:4}
+.cta small{font:400 12px var(--font);opacity:.75}
+.wrap{padding-bottom:110px}
+.q{font-family:var(--cond);font-weight:700;font-size:14px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:baseline}
+.q small{font:400 12px var(--font);letter-spacing:0;text-transform:none;color:var(--muted)}
+.emoin{font-size:44px;text-align:center;width:84px;height:76px;border:2px solid var(--fg);background:#fff;font-family:system-ui}
+textarea{width:100%;min-height:110px;font:16px/1.7 var(--font);color:var(--fg);border:2px solid var(--fg);padding:12px;background:#fff;resize:none}
+textarea:focus,.emoin:focus{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-family:var(--font);font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
+.go{font:700 16px var(--font);padding:14px;border:0;background:var(--fg);color:#fff;cursor:pointer}
+.go:disabled{opacity:.35;cursor:default}
+.hint{font-size:12px;color:var(--muted);margin:0;line-height:1.6}
+.hint a{color:inherit}
+.err{font:600 13px/1.5 var(--font);color:#C8323B;margin:0}
+.done{font:600 15px/1.5 var(--font);margin:0;color:var(--fg)}
+.care{background:#fff;border:2px solid var(--accent);padding:16px;display:flex;flex-direction:column;gap:10px}
+.care p{margin:0;font:500 15px/1.7 var(--font)}
+.code{background:#fff;border:2px dashed var(--accent);padding:12px;text-align:center}
+.code b{display:block;font:600 28px var(--mono);letter-spacing:.12em;color:var(--accent);margin:4px 0;user-select:all}
