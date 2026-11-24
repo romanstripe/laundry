@@ -32,7 +32,7 @@ export function isClosed(): boolean {
   return Date.now() >= CLOSE_AT
 }
 
-// 삭제 코드: 헷갈리는 글자(0, O, 1, I)를 뺀 6자리. 겉모양은 "K7Q-2MF"
+// 찾는 번호: 헷갈리는 글자(0, O, 1, I)를 뺀 6자리. 겉모양은 "K7Q-2MF"
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
 export function makeClaimCode(): string {
@@ -41,11 +41,11 @@ export function makeClaimCode(): string {
   return s.slice(0, 3) + '-' + s.slice(3)
 }
 
-/** 사용자가 입력한 삭제 코드를 비교용으로 정리 (대소문자·하이픈·공백 무시) */
+/** 사용자가 입력한 찾는 번호를 비교용으로 정리 (대소문자·하이픈·공백 무시) */
 export const normalizeCode = (code: string) => code.toUpperCase().replace(/[^A-Z0-9]/g, '')
 
 /**
- * DB에는 삭제 코드 원본이 아니라 이 해시만 저장한다. (번호 + 코드 + SALT)
+ * DB에는 찾는 번호 원본이 아니라 이 해시만 저장한다. (번호 + 코드 + SALT)
  * 번호만 섞으면 번호를 아는 누구나 만들 수 있어서 코드도 함께 해시에 넣었다.
  */
 export const claimHash = (no: number, code: string) => sha256(`${no}:${normalizeCode(code)}:${salt()}`)

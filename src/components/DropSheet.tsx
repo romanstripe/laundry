@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ApiError, drop } from '../lib/api'
 import { lastEmoji } from '../lib/emoji'
 import type { Item } from '../lib/types'
+import { ShareBar } from './ShareBar'
 import { Sticker } from './Sticker'
 
 type Result =
@@ -14,13 +15,14 @@ interface Props {
   onClose: () => void
 }
 
-/** 물건 맡기기 시트: 입력 → (성공) 방금 만든 카드 + 삭제 코드 / (자해 관련) 안내 카드 */
+/** 물건 맡기기 시트: 입력 → (성공) 방금 만든 카드 + 찾는 번호 / (자해 관련) 안내 카드 */
 export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
   const [emoji, setEmoji] = useState('')
   const [story, setStory] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [result, setResult] = useState<Result | null>(null)
+  const cardEl = useRef<HTMLDivElement | null>(null) // 방금 만든 카드 (공유 이미지로 찍을 원본)
 
   if (slotsLeft !== null && slotsLeft <= 0 && !result) {
     return (
@@ -50,16 +52,22 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
     return (
       <>
         <p className="done">맡겼어요. 12월 31일 자정까지 보관합니다.</p>
-        <Sticker item={item} />
+        <Sticker
+          item={item}
+          onRoot={(el) => {
+            cardEl.current = el
+          }}
+        />
+        <ShareBar item={item} getCard={() => cardEl.current} />
         <div className="code">
-          <span className="hint">삭제 코드 · 캡처해 두세요</span>
+          <span className="hint">찾는 번호 · 캡처해 두세요</span>
           <b>{claimCode}</b>
           {randomEmoji && (
             <p className="hint" style={{ margin: '0 0 8px' }}>
               이모지를 비워 두셔서 <span style={{ fontSize: 22 }}>{item.emoji}</span>로 걸어 뒀어요.
             </p>
           )}
-          <span className="hint">다른 폰에서 지울 때 필요해요. 이 화면을 닫으면 다시 볼 수 없어요.</span>
+          <span className="hint">다른 폰에서 찾아갈 때 필요해요. 이 화면을 닫으면 다시 볼 수 없어요.</span>
         </div>
         <button className="go" onClick={onClose}>확인</button>
       </>

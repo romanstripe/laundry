@@ -156,7 +156,7 @@ export default function App() {
               setOpen(true)
             }}
           >
-            다른 폰에서 맡긴 물건 찾아가기 (삭제 코드)
+            다른 폰에서 맡긴 물건 찾아가기
           </button>
         </p>
       </div>

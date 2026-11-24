@@ -17,4 +17,6 @@ function init() {
   return initializeApp({ credential: cert(sa) })
 }
 
-export const db = getFirestore(init())
+// Firestore 데이터베이스 ID. 콘솔에서 "(default)"가 아닌 이름으로 만들었으면 FIRESTORE_DATABASE_ID에 적는다.
+const databaseId = process.env.FIRESTORE_DATABASE_ID?.trim()
+export const db = databaseId && databaseId !== '(default)' ? getFirestore(init(), databaseId) : getFirestore(init())

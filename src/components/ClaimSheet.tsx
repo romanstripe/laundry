@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ClaimForm } from './ClaimForm'
 
-/** 푸터의 "삭제 코드로 찾아가기": 보관 번호 + 삭제 코드 두 칸 */
+/** 푸터의 "찾는 번호로 찾아가기": 보관 번호 + 찾는 번호 두 칸 */
 export function ClaimSheet({ onClaimed, onClose }: { onClaimed: (id: string) => void; onClose: () => void }) {
   const [done, setDone] = useState(false)
 
@@ -15,7 +15,7 @@ export function ClaimSheet({ onClaimed, onClose }: { onClaimed: (id: string) => 
   }
   return (
     <>
-      <div className="q">Claim <small>삭제 코드로 찾아가기</small></div>
+      <div className="q">Claim <small>찾는 번호로 찾아가기</small></div>
       <ClaimForm
         onDone={(id) => {
           onClaimed(id)

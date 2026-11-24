@@ -41,7 +41,7 @@ interface Props {
 
 /** 카드 + "N명이 같은 걸 잃어버렸어요" 줄 + ⋯ 메뉴. 카드 위 이모지가 곧 "나도" 버튼이다. */
 export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }: Props) {
-  // 찾아가기: 'mine' = 내 폰에서 바로(확인 한 번), 'code' = 삭제 코드 입력
+  // 찾아가기: 'mine' = 내 폰에서 바로(확인 한 번), 'code' = 찾는 번호 입력
   const [claim, setClaim] = useState<null | 'ask' | 'code'>(null)
   const [claimBusy, setClaimBusy] = useState(false)
   const tear = (id: string) => {
@@ -198,7 +198,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
               setClaim('code')
             }}
           >
-            삭제 코드 입력하기
+            찾는 번호 입력하기
           </button>
           <button onClick={() => setPop('reasons')}>신고하기</button>
         </Pop>

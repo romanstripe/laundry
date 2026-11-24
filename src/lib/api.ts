@@ -78,6 +78,6 @@ export const report = (itemId: string, reason: ReportReason) =>
 /** 이 기기가 맡긴 물건을 찾아간다 (사연이 지워지고 빈 옷걸이가 남는다) */
 export const claimById = (itemId: string) => post<{ ok: true; id: string }>('/api/claim', { itemId })
 
-/** 다른 폰에서: 보관 번호 + 삭제 코드. 5번 틀리면 24시간 잠긴다. */
+/** 다른 폰에서: 보관 번호 + 찾는 번호. 5번 틀리면 24시간 잠긴다. */
 export const claimByCode = (no: number, claimCode: string) =>
   post<{ ok: true; id: string }>('/api/claim', { no, claimCode })

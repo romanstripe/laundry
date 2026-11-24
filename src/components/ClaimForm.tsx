@@ -24,7 +24,7 @@ export function ClaimConfirm({
   )
 }
 
-/** 다른 폰에서 삭제 코드로 찾아가기. no를 주면 번호 칸 없이 코드만 받는다. */
+/** 다른 폰에서 찾는 번호로 찾아가기. no를 주면 번호 칸 없이 코드만 받는다. */
 export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) => void }) {
   const [noText, setNoText] = useState(no ? String(no) : '')
   const [code, setCode] = useState('')
@@ -45,7 +45,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
     }
     if (normCode.length !== 6) {
       setBad('code')
-      setErr('삭제 코드는 6자리예요')
+      setErr('찾는 번호는 6자리예요')
       return
     }
     setBad(null)
@@ -86,7 +86,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
         <input
           className={'cdin' + (bad === 'code' ? ' bad' : '')}
           maxLength={7}
-          placeholder="삭제 코드 (예: K7Q-2MX)"
+          placeholder="찾는 번호 (예: K7Q-2MX)"
           autoComplete="off"
           autoCapitalize="characters"
           value={code}
@@ -98,7 +98,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
         />
         {!confirm && <button className="btn dark" onClick={ask}>찾아가기</button>}
       </div>
-      <p className="hint">맡길 때 받은 삭제 코드를 넣으면 이 폰에서도 찾아갈 수 있어요. 5번 틀리면 24시간 잠겨요.</p>
+      <p className="hint">맡길 때 받은 찾는 번호를 넣으면 이 폰에서도 찾아갈 수 있어요. 5번 틀리면 24시간 잠겨요.</p>
       {err && <p className="err" role="alert">{err}</p>}
       {confirm && <ClaimConfirm busy={busy} onYes={() => void go()} onNo={() => setConfirm(false)} />}
     </div>

@@ -35,7 +35,7 @@ async function cleanup(itemId: string) {
 /**
  * POST /api/claim
  *  - { itemId, deviceId }       : 이 기기가 맡긴 물건이면 바로 처리
- *  - { no, claimCode }          : 다른 폰에서 보관 번호 + 삭제 코드로 확인.
+ *  - { no, claimCode }          : 다른 폰에서 보관 번호 + 찾는 번호로 확인.
  *                                 틀리면 claimFail/{no}에 횟수 +1, 5번 틀리면 24시간 잠금. IP 제한도 같이 적용.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -63,11 +63,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(200).json({ ok: true, id: itemId })
     }
 
-    // ── 번호 + 삭제 코드로 확인 ──
+    // ── 번호 + 찾는 번호로 확인 ──
     const no = Number(body.no)
     if (!Number.isInteger(no) || no < 100 || no > 99_999) throw new HttpError(400, 'bad_no', '보관 번호를 확인해 주세요')
     const code = typeof body.claimCode === 'string' ? normalizeCode(body.claimCode) : ''
-    if (code.length !== 6) throw new HttpError(400, 'bad_code', '삭제 코드는 6자리예요') // 모양이 틀린 건 횟수에 안 센다
+    if (code.length !== 6) throw new HttpError(400, 'bad_code', '찾는 번호는 6자리예요') // 모양이 틀린 건 횟수에 안 센다
     await limitIp(req, 'claim', IP_LIMIT, '잠시 후 다시 해 주세요')
 
     const out = await db.runTransaction(async (tx) => {
@@ -109,7 +109,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (out.status === 'locked' || out.locked) {
       throw new HttpError(429, 'locked', '5번 틀려서 24시간 동안 잠겼어요. 내일 다시 해 주세요')
     }
-    throw new HttpError(401, 'wrong', `번호나 삭제 코드가 맞지 않아요 (${out.left}번 남음)`)
+    throw new HttpError(401, 'wrong', `보관 번호나 찾는 번호가 맞지 않아요 (${out.left}번 남음)`)
   } catch (e) {
     return fail(res, e, 'claim failed')
   }
