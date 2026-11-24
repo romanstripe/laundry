@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { shareBlob, useShareImage } from '../lib/useShareImage'
 import type { Item } from '../lib/types'
@@ -6,7 +6,18 @@ import type { Item } from '../lib/types'
 /** 큰 미리보기: 공유 시트가 안 되는 곳(카톡·인스타 인앱 브라우저 등)에서는 꾹 눌러서 저장하게 한다. */
 export function Preview({ blob, name, onClose }: { blob: Blob; name: string; onClose: () => void }) {
   const [url] = useState(() => URL.createObjectURL(blob))
-  useEffect(() => () => URL.revokeObjectURL(url), [url])
+  // 정말 사라질 때만 주소를 지운다. 개발 중 StrictMode는 effect를 정리했다가 바로 다시 켜는데,
+  // 그때 지워 버리면 이미지가 깨진다. 다시 켜졌는지는 한 박자 뒤에 확인한다.
+  const alive = useRef(true)
+  useEffect(() => {
+    alive.current = true
+    return () => {
+      alive.current = false
+      queueMicrotask(() => {
+        if (!alive.current) URL.revokeObjectURL(url)
+      })
+    }
+  }, [url])
   return createPortal(
     <div className="shot">
       <img src={url} alt="보관증 이미지" />
