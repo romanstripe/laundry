@@ -41,7 +41,7 @@ export async function makeShareImage(src: HTMLElement, pad: number): Promise<Blo
   wrap.appendChild(card)
   const foot = document.createElement('div')
   foot.className = 'sf'
-  foot.innerHTML = '올해 잃어버린 것, 여기 두고 갔어요<br>12월 31일 자정까지 보관'
+  foot.innerHTML = '올해 잃어버린 것, 여기 맡겨 두었습니다<br>12월 31일 자정까지 보관합니다'
   fr.append(head, wrap, foot)
   document.body.appendChild(fr)
 
@@ -54,7 +54,7 @@ export async function makeShareImage(src: HTMLElement, pad: number): Promise<Blo
     }
     await document.fonts.ready
     const blob = await domToBlob(fr, { scale: 3, type: 'image/png' })
-    if (!blob) throw new Error('이미지를 만들지 못했어요')
+    if (!blob) throw new Error('이미지를 만들지 못했습니다')
     return blob
   } finally {
     fr.remove()

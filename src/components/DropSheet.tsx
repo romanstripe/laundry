@@ -28,7 +28,7 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
     return (
       <>
         <p className="hint" style={{ fontSize: 15, color: 'var(--fg)' }}>
-          맡길 수 있는 칸을 다 썼습니다.<br />1인 3개까지 보관합니다.
+          맡길 수 있는 칸을 모두 썼습니다.<br />한 사람당 3개까지 보관합니다.
         </p>
         <button className="go" onClick={onClose}>확인</button>
       </>
@@ -39,8 +39,8 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
     return (
       <>
         <div className="care">
-          <p>이건 선반에 걸지 않을게요.</p>
-          <p>혼자 들고 있기 무거우면 <a href="tel:109"><b>109</b></a>(자살예방상담, 24시간)에 전화해 주세요.</p>
+          <p>이 이야기는 선반에 걸지 않겠습니다.</p>
+          <p>혼자 안고 있기 힘드시다면 <a href="tel:109"><b>109</b></a>(자살예방상담전화, 24시간)로 연락해 주세요.</p>
         </div>
         <button className="go" onClick={onClose}>확인</button>
       </>
@@ -51,7 +51,7 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
     const { item, claimCode, randomEmoji } = result
     return (
       <>
-        <p className="done">맡겼어요. 12월 31일 자정까지 보관합니다.</p>
+        <p className="done">맡겼습니다. 12월 31일 자정까지 보관합니다.</p>
         <Sticker
           item={item}
           onRoot={(el) => {
@@ -64,10 +64,10 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
           <b>{claimCode}</b>
           {randomEmoji && (
             <p className="hint" style={{ margin: '0 0 8px' }}>
-              이모지를 비워 두셔서 <span style={{ fontSize: 22 }}>{item.emoji}</span>로 걸어 뒀어요.
+              이모지를 고르지 않아 <span style={{ fontSize: 22 }}>{item.emoji}</span>로 걸어 두었습니다.
             </p>
           )}
-          <span className="hint">다른 폰에서 찾아갈 때 필요해요. 이 화면을 닫으면 다시 볼 수 없어요.</span>
+          <span className="hint">다른 폰에서 찾아갈 때 필요합니다. 이 화면을 닫으면 다시 볼 수 없습니다.</span>
         </div>
         <button className="go" onClick={onClose}>확인</button>
       </>
@@ -98,9 +98,9 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
       onDropped(item)
     } catch (e) {
       if (e instanceof ApiError && e.code === 'blocked') {
-        setErr('이 내용은 보관할 수 없어요. 욕설·개인정보·위험한 내용은 선반에 걸 수 없습니다.')
+        setErr('이 내용은 보관할 수 없습니다. 내용을 조금 바꿔서 다시 시도해 주세요.')
       } else {
-        setErr(e instanceof ApiError ? e.message : '잠시 후 다시 해 주세요')
+        setErr(e instanceof ApiError ? e.message : '잠시 후 다시 시도해 주세요')
       }
     } finally {
       setBusy(false)
@@ -121,7 +121,7 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
           value={emoji}
           onChange={(e) => setEmoji(lastEmoji(e.target.value))}
         />
-        <p className="hint" style={{ marginTop: 8 }}>폰 키보드에서 아무 이모지나 하나. 비워 두면 아무거나 하나 걸어 둘게요.</p>
+        <p className="hint" style={{ marginTop: 8 }}>키보드에서 이모지를 하나 골라 주세요. 비워 두면 아무거나 하나 걸어 두겠습니다.</p>
       </div>
       <div>
         <div className="q">Note <small>올해 잃어버린 것에 대해</small></div>
@@ -133,7 +133,7 @@ export function DropSheet({ slotsLeft, onDropped, onClose }: Props) {
         />
         <div className="count">{n}/120</div>
       </div>
-      <p className="hint">이름은 남지 않습니다. 욕설·개인정보·위험한 내용은 자동으로 보관되지 않습니다.</p>
+      <p className="hint">이름은 남지 않습니다. 욕설·개인정보·위험한 내용은 보관되지 않습니다.</p>
       {err && <p className="err" role="alert">{err}</p>}
       <button className="go" disabled={busy || story.trim().length < 5} onClick={submit}>
         {busy ? '맡기는 중…' : '맡기기'}

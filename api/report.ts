@@ -32,8 +32,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const rRef = db.doc(`reports/${itemId}_${dk}`)
     const out = await db.runTransaction(async (tx) => {
       const [item, r] = await tx.getAll(itemRef, rRef)
-      if (!item.exists || item.get('gone') === true) throw new HttpError(404, 'gone', '찾을 수 없는 물건이에요')
-      if (item.get('devKey') === dk) throw new HttpError(400, 'own', '내가 맡긴 물건은 신고할 수 없어요')
+      if (!item.exists || item.get('gone') === true) throw new HttpError(404, 'gone', '찾을 수 없는 물건입니다')
+      if (item.get('devKey') === dk) throw new HttpError(400, 'own', '내가 맡긴 물건은 신고할 수 없습니다')
       const hidden = item.get('hidden') === true
       if (r.exists || hidden) return { ok: true, already: r.exists, hidden }
 

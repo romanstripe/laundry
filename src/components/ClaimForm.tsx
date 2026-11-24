@@ -14,10 +14,10 @@ export function ClaimConfirm({
   return (
     <div className="claimbox">
       <p className="hint" style={{ color: 'var(--fg)' }}>
-        정말 찾아갈까요? 사연이 지워지고 빈 옷걸이만 남아요. 되돌릴 수 없어요.
+        정말 찾아가시겠습니까? 사연이 지워지고 빈 옷걸이만 남습니다. 되돌릴 수 없습니다.
       </p>
       <div className="acts">
-        <button className="btn dark" disabled={busy} onClick={onYes}>{busy ? '찾아가는 중…' : '네, 찾아갈게요'}</button>
+        <button className="btn dark" disabled={busy} onClick={onYes}>{busy ? '찾아가는 중…' : '네, 찾아가겠습니다'}</button>
         <button className="btn" disabled={busy} onClick={onNo}>취소</button>
       </div>
     </div>
@@ -45,7 +45,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
     }
     if (normCode.length !== 6) {
       setBad('code')
-      setErr('찾는 번호는 6자리예요')
+      setErr('찾는 번호는 6자리입니다')
       return
     }
     setBad(null)
@@ -59,7 +59,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
       const r = await claimByCode(no ?? noNum, code)
       onDone(r.id)
     } catch (e) {
-      setErr(e instanceof ApiError ? e.message : '잠시 후 다시 해 주세요')
+      setErr(e instanceof ApiError ? e.message : '잠시 후 다시 시도해 주세요')
       setConfirm(false)
     } finally {
       setBusy(false)
@@ -98,7 +98,7 @@ export function ClaimForm({ no, onDone }: { no?: number; onDone: (id: string) =>
         />
         {!confirm && <button className="btn dark" onClick={ask}>찾아가기</button>}
       </div>
-      <p className="hint">맡길 때 받은 찾는 번호를 넣으면 이 폰에서도 찾아갈 수 있어요. 5번 틀리면 24시간 잠겨요.</p>
+      <p className="hint">맡길 때 받은 찾는 번호를 넣으면 이 폰에서도 찾아갈 수 있습니다. 5번 틀리면 24시간 잠깁니다.</p>
       {err && <p className="err" role="alert">{err}</p>}
       {confirm && <ClaimConfirm busy={busy} onYes={() => void go()} onNo={() => setConfirm(false)} />}
     </div>

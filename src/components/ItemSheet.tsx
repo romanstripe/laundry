@@ -7,7 +7,7 @@ import { Sticker } from './Sticker'
 
 const REASONS: [ReportReason, string][] = [
   ['abuse', '욕설·비하·혐오'],
-  ['privacy', '개인정보가 들어 있어요'],
+  ['privacy', '개인정보가 들어 있습니다'],
   ['selfharm', '자해·위험한 내용'],
   ['sexual', '성적인 내용'],
   ['spam', '광고·도배'],
@@ -55,7 +55,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       const r = await claimById(item.id)
       tear(r.id)
     } catch (e) {
-      setMsg(e instanceof ApiError ? e.message : '잠시 후 다시 해 주세요')
+      setMsg(e instanceof ApiError ? e.message : '잠시 후 다시 시도해 주세요')
       setClaim(null)
     } finally {
       setClaimBusy(false)
@@ -126,7 +126,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       el.classList.add('tapE')
       if (!st.current.me) el.classList.add('hint')
       el.setAttribute('role', 'button')
-      el.setAttribute('aria-label', '나도 이거 잃어버림')
+      el.setAttribute('aria-label', '나도 잃어버렸습니다')
       el.tabIndex = 0
       const click = () => hit(el)
       const key = (e: KeyboardEvent) => {
@@ -152,12 +152,12 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       const r = await report(item.id, reason)
       setDoneMsg(
         r.already
-          ? { title: '이미 신고하셨어요', body: '한 사람은 한 물건에 한 번만 신고할 수 있어요.' }
-          : { title: '신고했어요', body: '확인해 볼게요. 한 사람은 한 물건에 한 번만 신고할 수 있어요.' },
+          ? { title: '이미 신고하셨습니다', body: '한 사람은 한 물건에 한 번만 신고할 수 있습니다.' }
+          : { title: '신고했습니다', body: '확인해 보겠습니다. 한 사람은 한 물건에 한 번만 신고할 수 있습니다.' },
       )
       onReported(item.id, r.hidden)
     } catch (e) {
-      setDoneMsg({ title: '신고하지 못했어요', body: e instanceof ApiError ? e.message : '잠시 후 다시 해 주세요' })
+      setDoneMsg({ title: '신고하지 못했습니다', body: e instanceof ApiError ? e.message : '잠시 후 다시 시도해 주세요' })
     } finally {
       setReporting(false)
       setPop('done')
@@ -175,7 +175,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       />
       <div className="acts" style={{ marginTop: 8 }}>
         <span className="metoo">
-          <b>{count.toLocaleString()}</b>명이 같은 걸 잃어버렸어요
+          <b>{count.toLocaleString()}</b>명이 같은 걸 잃어버렸습니다
         </span>
         {item.mine ? (
           claim !== 'ask' && <button className="btn mine" onClick={() => setClaim('ask')}>찾아가기</button>
@@ -188,7 +188,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       )}
       {!item.mine && claim === 'code' && <ClaimForm no={item.no} onDone={tear} />}
       {msg && <p className="err" role="alert">{msg}</p>}
-      {me && !item.mine && <p className="hint">나도 눌렀어요. 이모지를 한 번 더 누르면 취소돼요.</p>}
+      {me && !item.mine && <p className="hint">나도 눌렀습니다. 이모지를 한 번 더 누르면 취소됩니다.</p>}
 
       {pop === 'menu' && (
         <Pop onClose={() => setPop(null)}>
@@ -206,7 +206,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       {pop === 'reasons' && (
         <Pop onClose={() => setPop(null)}>
           <h4>신고 사유</h4>
-          <p>신고가 들어오면 다시 검사해서 문제가 있으면 바로 내려요.</p>
+          <p>신고가 들어오면 다시 검사하고, 문제가 있으면 바로 내립니다.</p>
           {REASONS.map(([code, label]) => (
             <button key={code} disabled={reporting} onClick={() => void send(code)}>{label}</button>
           ))}

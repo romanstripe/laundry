@@ -8,7 +8,7 @@ export function ClaimSheet({ onClaimed, onClose }: { onClaimed: (id: string) => 
   if (done) {
     return (
       <>
-        <p className="done">찾아갔어요. 선반에는 빈 옷걸이로 남아요.</p>
+        <p className="done">찾아갔습니다. 선반에는 빈 옷걸이로 남습니다.</p>
         <button className="go" onClick={onClose}>확인</button>
       </>
     )

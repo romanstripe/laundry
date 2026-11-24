@@ -15,7 +15,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
   try {
     r = await fetch(url, init)
   } catch {
-    throw new ApiError(0, 'network', '연결이 불안정해요. 잠시 후 다시 해 주세요')
+    throw new ApiError(0, 'network', '연결이 불안정합니다. 잠시 후 다시 시도해 주세요')
   }
   let data: any = null
   try {
@@ -23,7 +23,7 @@ async function call<T>(url: string, init?: RequestInit): Promise<T> {
   } catch {
     /* 본문 없음 */
   }
-  if (!r.ok) throw new ApiError(r.status, data?.code ?? 'unknown', data?.error ?? '잠시 후 다시 해 주세요')
+  if (!r.ok) throw new ApiError(r.status, data?.code ?? 'unknown', data?.error ?? '잠시 후 다시 시도해 주세요')
   return data as T
 }
 

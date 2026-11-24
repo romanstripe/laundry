@@ -13,7 +13,7 @@ function Preview({ blob, name, onClose }: { blob: Blob; name: string; onClose: (
   return createPortal(
     <div className="shot">
       <img src={url} alt="보관증 이미지" />
-      <p>이미지를 꾹 눌러서 저장하세요</p>
+      <p>이미지를 꾹 눌러 저장해 주세요</p>
       <div className="row">
         <a href={url} download={name}>파일로 받기</a>
         <button onClick={onClose}>닫기</button>
@@ -76,7 +76,7 @@ export function ShareBar({ item, getCard }: { item: Item; getCard: () => HTMLEle
   if (failed) {
     return (
       <div className="share">
-        <button className="btn" onClick={() => setAttempt((n) => n + 1)}>이미지를 만들지 못했어요 · 다시 시도</button>
+        <button className="btn" onClick={() => setAttempt((n) => n + 1)}>이미지를 만들지 못했습니다 · 다시 시도</button>
       </div>
     )
   }

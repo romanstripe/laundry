@@ -67,9 +67,9 @@ async function store(p: { dk: string; emoji: string; story: string; claimCode: s
         const c = await tx.get(counterRef)
         const count = (c.get('count') as number | undefined) ?? 0
         const small = (c.get('small') as number | undefined) ?? 0
-        if (count >= MAX_ITEMS) throw new HttpError(409, 'full', '보관함이 꽉 찼어요')
+        if (count >= MAX_ITEMS) throw new HttpError(409, 'full', '보관함이 가득 찼습니다')
         if ((await activeCount(p.dk, tx)) >= PER_DEVICE) {
-          throw new HttpError(409, 'slots', '맡길 칸을 다 썼습니다')
+          throw new HttpError(409, 'slots', '맡길 칸을 모두 썼습니다')
         }
 
         const cands = candidates(small >= SMALL_TOTAL * 0.8)
@@ -131,7 +131,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await limitIp(req, 'drop', IP_LIMIT, '잠시 후 다시 맡겨 주세요')
 
     // 4. 기기 제한 (저장 트랜잭션 안에서 한 번 더 본다)
-    if ((await activeCount(dk)) >= PER_DEVICE) throw new HttpError(409, 'slots', '맡길 칸을 다 썼습니다')
+    if ((await activeCount(dk)) >= PER_DEVICE) throw new HttpError(409, 'slots', '맡길 칸을 모두 썼습니다')
 
     // 5. 검열 — 실패하면 저장하지 않는다
     let verdict
