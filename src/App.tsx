@@ -86,7 +86,6 @@ function Shelf() {
   const [done, setDone] = useState(false); // 선반 끝까지 받음
   const [ready, setReady] = useState(false); // 첫 페이지를 받음
   const [failed, setFailed] = useState(false);
-  const [total, setTotal] = useState<number | null>(null);
   const [liked, setLiked] = useState<Set<string>>(new Set()); // 내가 "나도"를 누른 물건 (서버가 알려 줌)
   const [counts, setCounts] = useState<Record<string, number>>({}); // 누른 뒤 서버가 돌려준 최신 "나도" 수 (선반 캐시보다 새 값)
   const [view, setView] = useState<View | null>(null);
@@ -108,7 +107,6 @@ function Shelf() {
         const have = new Set(prev.map((i) => i.id));
         return [...prev, ...r.items.filter((i) => !have.has(i.id))];
       });
-      if (r.total !== undefined) setTotal(r.total);
       if (r.next === null) setDone(true);
       setReady(true);
     } catch {
@@ -204,7 +202,6 @@ function Shelf() {
   const dropped = (item: Item) => {
     setMine((prev) => [item, ...prev]);
     setSlots((s) => (s === null ? s : Math.max(0, s - 1)));
-    setTotal((t) => (t === null ? t : t + 1));
   };
 
   return (

@@ -51,8 +51,6 @@ export interface ShelfPage {
   items: Item[]
   /** 다음 페이지를 부를 커서(마지막 createdAt ms). 끝이면 null */
   next: number | null
-  /** 첫 페이지에만 옴 */
-  total?: number
 }
 export const getShelf = (after?: number | null) =>
   call<ShelfPage>(after == null ? '/api/shelf' : `/api/shelf?after=${after}`)
