@@ -82,7 +82,6 @@ export default function App() {
 function Shelf() {
   const [shelf, setShelf] = useState<Item[]>([]); // /api/shelf에서 받은 것 (모두에게 같은 1분 캐시)
   const [mine, setMine] = useState<Item[]>([]); // /api/mine + 방금 맡긴 것 (사람마다 다름)
-  const [mineKnown, setMineKnown] = useState(false); // /api/mine 응답을 받았는지 (링크가 깜빡 보였다 사라지지 않게)
   const [done, setDone] = useState(false); // 선반 끝까지 받음
   const [ready, setReady] = useState(false); // 첫 페이지를 받음
   const [failed, setFailed] = useState(false);
@@ -136,8 +135,7 @@ function Shelf() {
         setMine(r.items);
         setLiked(new Set(r.liked));
       })
-      .catch(() => {})
-      .finally(() => setMineKnown(true));
+      .catch(() => {});
     getMe()
       .then((m) => setSlots(m.left))
       .catch(() => setSlots(null));
@@ -232,20 +230,17 @@ function Shelf() {
             <button onClick={() => void more()}>다시 시도</button>
           </div>
         )}
-        {/* 이 폰에 내가 맡긴 물건이 있으면 카드의 [찾아가기]로 충분해서 숨긴다. 다른 폰(맡긴 물건이 없는 기기)에서만 보인다. */}
-        {mineKnown && mine.length === 0 && (
-          <p className="foot foot2">
-            <button
-              className="link"
-              onClick={() => {
-                setView({ kind: "claim", n: ++dropN.current });
-                setOpen(true);
-              }}
-            >
-              다른 폰에서 맡긴 물건 찾아가기
-            </button>
-          </p>
-        )}
+        <p className="foot foot2">
+          <button
+            className="link"
+            onClick={() => {
+              setView({ kind: "claim", n: ++dropN.current });
+              setOpen(true);
+            }}
+          >
+            다른 폰에서 맡긴 물건 찾아가기
+          </button>
+        </p>
       </div>
 
       <button

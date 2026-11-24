@@ -348,7 +348,7 @@ textarea:focus,.emoin:focus{outline:2px solid var(--accent);outline-offset:2px}
 .claimbox{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);padding:12px}
 .claimbox .row{display:flex;gap:8px}
 .link{font:12px var(--font);background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer}
-.foot2{text-align:center;margin:-6px 0 0}
+.foot2{text-align:center;margin:0}
 
 /* 저장·공유 */
 .share{display:flex;gap:8px}.share .btn{flex:1;padding:12px;font-weight:600}
