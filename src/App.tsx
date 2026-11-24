@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type TouchEvent as ReactTouchEvent,
 } from "react";
 import { ClaimSheet } from "./components/ClaimSheet";
 import { DropSheet } from "./components/DropSheet";
@@ -15,7 +16,7 @@ import { CLOSE_AT } from "./lib/time";
 import type { Item } from "./lib/types";
 
 type View =
-  | { kind: "item"; item: Item }
+  | { kind: "item"; item: Item; dir?: "l" | "r" }
   | { kind: "drop"; n: number }
   | { kind: "claim"; n: number };
 
@@ -141,6 +142,16 @@ function Shelf() {
       .catch(() => setSlots(null));
   }, []);
 
+  // 시트가 열려 있는 동안 뒤 선반이 같이 스크롤되지 않게 잠근다
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -166,6 +177,30 @@ function Shelf() {
       .map((m) => ({ ...m, mine: true }));
     return [...base, ...extra].sort((a, b) => b.createdAt - a.createdAt);
   }, [shelf, mine, done]);
+
+  // 옆으로 넘겨 볼 수 있는 물건: 선반 순서 그대로, 사연이 없는 빈 옷걸이는 건너뛴다.
+  const viewable = useMemo(() => items.filter((i) => !i.gone), [items]);
+  const curId = view?.kind === "item" ? view.item.id : null;
+  const curIdx = curId ? viewable.findIndex((i) => i.id === curId) : -1;
+  const step = (d: 1 | -1) => {
+    const next = viewable[curIdx + d];
+    if (curIdx < 0 || !next) return;
+    setView({ kind: "item", item: next, dir: d === 1 ? "l" : "r" });
+    if (curIdx + d >= viewable.length - 3) void more(); // 끝이 가까우면 다음 페이지를 미리 불러온다
+  };
+  const swipe = useRef<{ x: number; y: number } | null>(null);
+  const onTouchStart = (e: ReactTouchEvent) => {
+    const skip = (e.target as HTMLElement).closest("input,textarea,.pop,.shot");
+    swipe.current = skip ? null : { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  };
+  const onTouchEnd = (e: ReactTouchEvent) => {
+    const s = swipe.current;
+    swipe.current = null;
+    if (!s || view?.kind !== "item") return;
+    const dx = e.changedTouches[0].clientX - s.x;
+    const dy = e.changedTouches[0].clientY - s.y;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  };
 
   const metooDone = (id: string, on: boolean, n: number) => {
     setLiked((prev) => {
@@ -261,21 +296,39 @@ function Shelf() {
           role="dialog"
           aria-modal="true"
           aria-hidden={!open}
+          onTouchStart={onTouchStart}
+          onTouchEnd={onTouchEnd}
         >
+          <div className="shead">
+            {view?.kind === "item" && curIdx >= 0 && (
+              <span className="snav">
+                <button aria-label="이전 물건" disabled={curIdx <= 0} onClick={() => step(-1)}>
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" /></svg>
+                </button>
+                <button aria-label="다음 물건" disabled={curIdx >= viewable.length - 1} onClick={() => step(1)}>
+                  <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg>
+                </button>
+              </span>
+            )}
+            <button className="sx" aria-label="닫기" onClick={() => setOpen(false)}>
+              <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" /></svg>
+            </button>
+          </div>
           <div className="in">
             {view?.kind === "item" && (
-              <ItemSheet
-                key={view.item.id}
-                item={view.item}
-                liked={liked.has(view.item.id)}
-                metoo={counts[view.item.id] ?? view.item.metoo}
-                onMetoo={metooDone}
-                onReported={reported}
-                onClaimed={(id) => {
-                  claimed(id);
-                  setOpen(false);
-                }}
-              />
+              <div key={view.item.id} className={"pg " + (view.dir ?? "")}>
+                <ItemSheet
+                  item={view.item}
+                  liked={liked.has(view.item.id)}
+                  metoo={counts[view.item.id] ?? view.item.metoo}
+                  onMetoo={metooDone}
+                  onReported={reported}
+                  onClaimed={(id) => {
+                    claimed(id);
+                    setOpen(false);
+                  }}
+                />
+              </div>
             )}
             {view?.kind === "claim" && (
               <ClaimSheet

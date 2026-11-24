@@ -3,6 +3,8 @@ import { createPortal } from 'react-dom'
 import { ApiError, claimById, report, toggleMetoo, type ReportReason } from '../lib/api'
 import type { Item } from '../lib/types'
 import { ClaimConfirm, ClaimForm } from './ClaimForm'
+import { shareBlob, useShareImage } from '../lib/useShareImage'
+import { Preview } from './ShareBar'
 import { Sticker } from './Sticker'
 
 const REASONS: [ReportReason, string][] = [
@@ -70,6 +72,9 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
   const [reporting, setReporting] = useState(false)
 
   const card = useRef<HTMLDivElement | null>(null)
+  // 내 카드만: 메뉴에서 저장·공유할 이미지를 미리 만들어 둔다 (남의 카드는 만들지 않는다)
+  const img = useShareImage(item, () => card.current, item.mine)
+  const [preview, setPreview] = useState(false)
   const st = useRef({ me: liked, count: metoo })
   const busy = useRef(false)
   const cb = useRef({ onMetoo })
@@ -177,11 +182,10 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
         <span className="metoo">
           <b>{count.toLocaleString()}</b>명이 같은 걸 잃어버렸습니다
         </span>
-        {item.mine ? (
-          claim !== 'ask' && <button className="btn mine" onClick={() => setClaim('ask')}>찾아가기</button>
-        ) : (
-          <button className="more" aria-label="더 보기" onClick={() => setPop('menu')}>⋯</button>
-        )}
+        {item.mine && <span className="mark">내 것</span>}
+        <button className="more" aria-label="더 보기" onClick={() => setPop('menu')}>
+          <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r="1.3" /><circle cx="8" cy="8" r="1.3" /><circle cx="12.5" cy="8" r="1.3" /></svg>
+        </button>
       </div>
       {item.mine && claim === 'ask' && (
         <ClaimConfirm busy={claimBusy} onYes={() => void claimMine()} onNo={() => setClaim(null)} />
@@ -190,7 +194,44 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
       {msg && <p className="err" role="alert">{msg}</p>}
       {me && !item.mine && <p className="hint">나도 눌렀습니다. 이모지를 한 번 더 누르면 취소됩니다.</p>}
 
-      {pop === 'menu' && (
+      {pop === 'menu' && item.mine && (
+        <Pop onClose={() => setPop(null)}>
+          {img.failed ? (
+            <button onClick={img.retry}>이미지를 만들지 못했습니다 · 다시 시도</button>
+          ) : (
+            <>
+              <button
+                disabled={!img.blob}
+                onClick={() => {
+                  setPop(null)
+                  setPreview(true)
+                }}
+              >
+                {img.blob ? '이미지 저장' : '이미지 준비 중…'}
+              </button>
+              <button
+                disabled={!img.blob}
+                onClick={() => {
+                  if (!img.blob) return
+                  setPop(null)
+                  void shareBlob(img.blob, img.name).then((ok) => !ok && setPreview(true))
+                }}
+              >
+                공유하기
+              </button>
+            </>
+          )}
+          <button
+            onClick={() => {
+              setPop(null)
+              setClaim('ask')
+            }}
+          >
+            찾아가기
+          </button>
+        </Pop>
+      )}
+      {pop === 'menu' && !item.mine && (
         <Pop onClose={() => setPop(null)}>
           <button
             onClick={() => {
@@ -203,6 +244,7 @@ export function ItemSheet({ item, liked, metoo, onMetoo, onReported, onClaimed }
           <button onClick={() => setPop('reasons')}>신고하기</button>
         </Pop>
       )}
+      {preview && img.blob && <Preview blob={img.blob} name={img.name} onClose={() => setPreview(false)} />}
       {pop === 'reasons' && (
         <Pop onClose={() => setPop(null)}>
           <h4>신고 사유</h4>
