@@ -57,5 +57,20 @@ export interface ShelfPage {
 export const getShelf = (after?: number | null) =>
   call<ShelfPage>(after == null ? '/api/shelf' : `/api/shelf?after=${after}`)
 
+/** items: 내가 맡긴 것, liked: 내가 "나도"를 누른 물건 id들 */
 export const getMine = () =>
-  call<{ items: Item[] }>(`/api/mine?deviceId=${encodeURIComponent(getDeviceId())}`)
+  call<{ items: Item[]; liked: string[] }>(`/api/mine?deviceId=${encodeURIComponent(getDeviceId())}`)
+
+const post = <T>(url: string, body: object) =>
+  call<T>(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ deviceId: getDeviceId(), ...body }),
+  })
+
+/** "나도 이거 잃어버림" 토글 → 서버가 알려 주는 최종 상태 */
+export const toggleMetoo = (itemId: string) => post<{ on: boolean; metoo: number }>('/api/metoo', { itemId })
+
+export type ReportReason = 'abuse' | 'privacy' | 'selfharm' | 'sexual' | 'spam' | 'other'
+export const report = (itemId: string, reason: ReportReason) =>
+  post<{ ok: true; already: boolean; hidden: boolean }>('/api/report', { itemId, reason })

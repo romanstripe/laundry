@@ -2,7 +2,8 @@ import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { randomInt } from 'node:crypto'
 import { Timestamp } from 'firebase-admin/firestore'
 import { db } from './_firebase.js'
-import { claimHash, devKey, ipKey, isClosed, makeClaimCode } from './_util.js'
+import { claimHash, devKey, isClosed, makeClaimCode } from './_util.js'
+import { EXPIRE_AT, limitIp } from './_shared.js'
 import { moderate } from './_moderate.js'
 import { HttpError, deviceIdOf, fail } from './_http.js'
 
@@ -12,7 +13,6 @@ const IP_LIMIT = 30 // 1시간(ipKey가 시간마다 바뀜)
 const STORY_MIN = 5
 const STORY_MAX = 120
 const SMALL_TOTAL = 9_900 // 100~9999 (3·4자리) 칸 수
-const EXPIRE_AT = Timestamp.fromDate(new Date('2027-01-01T00:00:00+09:00'))
 
 const POOL = ['☂️', '🔑', '🧤', '✉️', '🎧', '📷', '🌙', '🚲', '🧳', '💤', '🧩', '🕯️', '🎈', '🧦', '🪁', '📼', '🧷', '🪞']
 
@@ -54,19 +54,6 @@ async function activeCount(dk: string, tx?: FirebaseFirestore.Transaction): Prom
   const q = db.collection('items').where('devKey', '==', dk) // 단일 필드라 자동 인덱스로 충분
   const snap = await (tx ? tx.get(q) : q.get())
   return snap.docs.filter((d) => d.get('gone') === false).length
-}
-
-/** ipCount/{ipKey}를 트랜잭션으로 +1. 한도를 넘으면 429 */
-async function limitIp(req: VercelRequest) {
-  const ref = db.doc(`ipCount/${ipKey(req)}`)
-  const over = await db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref)
-    const count = (snap.get('count') as number | undefined) ?? 0
-    if (count >= IP_LIMIT) return true
-    tx.set(ref, { count: count + 1, expireAt: Timestamp.fromMillis(Date.now() + 2 * 3600_000) })
-    return false
-  })
-  if (over) throw new HttpError(429, 'rate', '잠시 후 다시 맡겨 주세요')
 }
 
 class NoFreeNumber extends Error {}
@@ -141,7 +128,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const emoji = randomEmoji ? POOL[randomInt(POOL.length)] : rawEmoji
 
     // 3. IP 제한
-    await limitIp(req)
+    await limitIp(req, 'drop', IP_LIMIT, '잠시 후 다시 맡겨 주세요')
 
     // 4. 기기 제한 (저장 트랜잭션 안에서 한 번 더 본다)
     if ((await activeCount(dk)) >= PER_DEVICE) throw new HttpError(409, 'slots', '맡길 칸을 다 썼습니다')

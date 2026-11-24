@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DropSheet } from './components/DropSheet'
 import { Rack } from './components/Rack'
-import { Sticker } from './components/Sticker'
+import { ItemSheet } from './components/ItemSheet'
 import { getMe, getMine, getShelf } from './lib/api'
 import type { Item } from './lib/types'
 
@@ -14,6 +14,8 @@ export default function App() {
   const [ready, setReady] = useState(false) // 첫 페이지를 받음
   const [failed, setFailed] = useState(false)
   const [total, setTotal] = useState<number | null>(null)
+  const [liked, setLiked] = useState<Set<string>>(new Set()) // 내가 "나도"를 누른 물건 (서버가 알려 줌)
+  const [counts, setCounts] = useState<Record<string, number>>({}) // 누른 뒤 서버가 돌려준 최신 "나도" 수 (선반 캐시보다 새 값)
   const [view, setView] = useState<View | null>(null)
   const [open, setOpen] = useState(false)
   const [slots, setSlots] = useState<number | null>(null) // 남은 칸 (모르면 null)
@@ -55,7 +57,12 @@ export default function App() {
 
   // 내 물건·남은 칸은 캐시되는 선반과 따로 받아서 합친다. 실패해도 선반은 그대로 보인다.
   useEffect(() => {
-    getMine().then((r) => setMine(r.items)).catch(() => {})
+    getMine()
+      .then((r) => {
+        setMine(r.items)
+        setLiked(new Set(r.liked))
+      })
+      .catch(() => {})
     getMe().then((m) => setSlots(m.left)).catch(() => setSlots(null))
   }, [])
 
@@ -76,6 +83,23 @@ export default function App() {
     const extra = mine.filter((m) => !have.has(m.id) && m.createdAt >= oldest).map((m) => ({ ...m, mine: true }))
     return [...base, ...extra].sort((a, b) => b.createdAt - a.createdAt)
   }, [shelf, mine, done])
+
+  const metooDone = (id: string, on: boolean, n: number) => {
+    setLiked((prev) => {
+      const next = new Set(prev)
+      if (on) next.add(id)
+      else next.delete(id)
+      return next
+    })
+    setCounts((prev) => ({ ...prev, [id]: n }))
+  }
+
+  // 신고로 숨겨진 건 선반에서 흔적 없이 뺀다 (시트는 그대로 두고, 닫으면 사라져 있다)
+  const reported = (id: string, hidden: boolean) => {
+    if (!hidden) return
+    setShelf((prev) => prev.filter((i) => i.id !== id))
+    setMine((prev) => prev.filter((i) => i.id !== id))
+  }
 
   const dropped = (item: Item) => {
     setMine((prev) => [item, ...prev])
@@ -134,14 +158,14 @@ export default function App() {
         <div className="sheet" role="dialog" aria-modal="true" aria-hidden={!open}>
           <div className="in">
             {view?.kind === 'item' && (
-              <>
-                <Sticker key={view.item.id} item={view.item} />
-                <div className="acts" style={{ marginTop: 8 }}>
-                  <span className="metoo">
-                    <b>{view.item.metoo.toLocaleString()}</b>명이 같은 걸 잃어버렸어요
-                  </span>
-                </div>
-              </>
+              <ItemSheet
+                key={view.item.id}
+                item={view.item}
+                liked={liked.has(view.item.id)}
+                metoo={counts[view.item.id] ?? view.item.metoo}
+                onMetoo={metooDone}
+                onReported={reported}
+              />
             )}
             {view?.kind === 'drop' && (
               <DropSheet key={view.n} slotsLeft={slots} onDropped={dropped} onClose={() => setOpen(false)} />

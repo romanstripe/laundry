@@ -313,3 +313,25 @@ textarea:focus,.emoin:focus{outline:2px solid var(--accent);outline-offset:2px}
 /* 선반 상태 메시지 */
 .note{font:500 14px/1.7 var(--font);color:var(--muted);text-align:center;margin:8px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
 .note button{font:600 14px var(--font);padding:9px 16px;border:1px solid var(--fg);background:#fff;color:var(--fg);cursor:pointer}
+
+/* tap the emoji on the card = "me too" +1 */
+.tapE{cursor:pointer;position:relative;display:inline-block;transition:transform .12s;-webkit-tap-highlight-color:transparent}
+.tapE:active{transform:scale(.88)}
+.tapE.on{animation:pop .35s ease}
+.tapE.hint{animation:nudge 1.1s ease .5s 1}
+@keyframes nudge{20%{transform:scale(1.15)}40%{transform:scale(.95)}60%{transform:scale(1.08)}}
+@keyframes pop{40%{transform:scale(1.25) rotate(-6deg)}}
+.plus{position:fixed;z-index:20;font:700 18px var(--font);color:var(--accent);pointer-events:none;animation:up .8s ease-out forwards}
+@keyframes up{to{transform:translateY(-46px);opacity:0}}
+.metoo small{color:var(--muted);font-size:12px}
+.more{font:400 18px var(--font);background:none;border:0;color:var(--muted);cursor:pointer;margin-left:auto;padding:4px 8px}
+
+/* bottom-sheet popup: ⋯ menu, report reasons */
+.pop{position:fixed;inset:0;z-index:15;display:flex;align-items:flex-end;justify-content:center;background:rgba(20,22,24,.45)}
+.pop .pb{width:100%;background:var(--bg);border-top:2px solid var(--fg);padding:18px max(16px,env(safe-area-inset-left)) calc(20px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
+.pop .pb>*{width:100%;max-width:460px;margin-left:auto;margin-right:auto;box-sizing:border-box}
+.pop h4{font:600 15px var(--font);margin:0}
+.pop p{font:400 12px/1.6 var(--font);color:var(--muted);margin:0 auto 4px}
+.pop button{display:block;text-align:left;font:500 14px var(--font);padding:13px 14px;border:1px solid var(--fg);background:#fff;color:var(--fg);cursor:pointer}
+.pop button:disabled{opacity:.5}
+.pop button.x{border:0;background:none;color:var(--muted);text-align:center;text-decoration:underline;text-underline-offset:2px;font-size:13px;padding:8px}

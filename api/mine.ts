@@ -13,7 +13,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     if (req.method !== 'GET') throw new HttpError(405, 'method', '허용되지 않는 요청입니다')
     const dk = devKey(deviceIdOf(req.query.deviceId))
-    const snap = await db.collection('items').where('devKey', '==', dk).get() // 단일 필드 자동 인덱스
+    const [snap, likedSnap] = await Promise.all([
+      db.collection('items').where('devKey', '==', dk).get(), // 단일 필드 자동 인덱스
+      db.collection('metoo').where('devKey', '==', dk).limit(500).get(), // 내가 "나도"를 누른 물건
+    ])
     const items = snap.docs
       .filter((d) => d.get('gone') === false && d.get('hidden') === false)
       .map((d) => ({
@@ -27,7 +30,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         gone: false,
       }))
       .sort((x, y) => y.createdAt - x.createdAt)
-    return res.status(200).json({ items })
+    const liked = likedSnap.docs.map((d) => d.get('itemId') as string)
+    return res.status(200).json({ items, liked })
   } catch (e) {
     return fail(res, e, 'mine failed')
   }
