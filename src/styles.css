@@ -1,0 +1,289 @@
+/* 손글씨 폰트 (public/hw) — 늦게 뜰 때 궁서체가 보이지 않게 block */
+@font-face{font-family:'Oksooni';font-display:block;src:url(/hw/oksooni.woff2) format('woff2')}
+@font-face{font-family:'KimTang';font-display:block;src:url(/hw/kimtang.woff2) format('woff2')}
+@font-face{font-family:'Banguri';font-display:block;src:url(/hw/banguri.woff2) format('woff2')}
+@font-face{font-family:'Kicheori';font-display:block;src:url(/hw/kicheori.woff2) format('woff2')}
+@font-face{font-family:'Baenge';font-display:block;src:url(/hw/baenge.woff2) format('woff2')}
+@font-face{font-family:'Ochungi';font-display:block;src:url(/hw/ochungi.woff2) format('woff2')}
+
+/* layout: airport-style black lightbox sign on a plain grey wall → hanging rails (rows only) → 전표.
+   Cold fluorescent palette + muted violet. Light only, deliberately. */
+:root{
+  --bg:#E4E7E9; --sign:#121416; --signink:#F7FCFF; --fg:#1C2023; --muted:#68717A; --line:#C3CBC8;
+  --steel1:#F2F4F5; --steel2:#9AA2A7; --steel3:#6E767B;
+  --ticket:#EFD6DA; --ticket-ink:#7A2E3B; --accent:#4E4766; --accent-soft:#D9D5E4;
+  --cond:"Pretendard Variable",Pretendard,sans-serif;
+  --font:"Pretendard Variable",Pretendard,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--fg);font-family:var(--font);
+  background:var(--bg) linear-gradient(180deg,#EEF0F2,var(--bg) 40%,#DDE1E4);background-attachment:fixed;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+button{font-family:inherit}
+.wrap{max-width:460px;margin:0 auto;padding-block:20px 60px;display:flex;flex-direction:column;gap:18px}
+
+/* sign: black lightbox, cool bright lettering */
+.sign{background:linear-gradient(180deg,#1C1F22,var(--sign) 30%);border-radius:6px;padding:18px 18px 16px;color:var(--signink);
+  display:grid;grid-template-columns:62px 1fr;gap:4px 14px;align-items:start;
+  box-shadow:0 0 0 3px #2A2E32,0 18px 30px -14px rgba(0,0,0,.55)}
+.sign .pic{grid-row:1/3;width:62px;height:auto;margin-top:6px;filter:drop-shadow(0 0 4px rgba(215,240,255,.8)) drop-shadow(0 0 12px rgba(190,225,255,.45))}
+.sign h1{font:700 46px/1.02 var(--font);margin:0;letter-spacing:0;color:var(--signink);text-shadow:0 0 4px rgba(225,245,255,.9),0 0 14px rgba(190,225,255,.55),0 0 28px rgba(170,215,255,.3)}
+.sign .kr{font:400 13px/1.6 var(--font);margin:8px 0 0;color:#EEF6FC;text-shadow:0 0 6px rgba(200,230,255,.45)}
+
+/* rails */
+.rack{margin-inline:-16px}
+.rail{position:relative;height:150px;padding-top:12px}
+.rail:before{content:"";position:absolute;left:0;right:0;top:12px;height:7px;border-radius:4px;
+  background:linear-gradient(var(--steel1),var(--steel2) 60%,var(--steel3));box-shadow:0 3px 4px rgba(0,0,0,.12)}
+.hangers{position:relative;display:flex;justify-content:space-around;align-items:flex-start;height:100%}
+.hg{background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;width:25%;transform-origin:50% 0;color:var(--fg)}
+.hg .hook{width:14px;height:16px;border:2px solid var(--steel3);border-bottom:0;border-radius:8px 8px 0 0;margin-top:-6px}
+.hg .wire{width:2px;height:10px;background:var(--steel3)}
+.hg .emo{font-size:40px;line-height:1;filter:grayscale(.15) drop-shadow(0 4px 3px rgba(0,0,0,.15))}
+.hg .tk{margin-top:6px;font:500 11px var(--font);background:var(--ticket);color:var(--ticket-ink);padding:2px 6px;letter-spacing:.06em;transform:rotate(-4deg)}
+.hg:hover,.hg:focus-visible{animation:swing .8s ease}
+.hg:focus-visible{outline:2px dashed var(--accent);outline-offset:4px}
+@keyframes swing{0%{transform:rotate(0)}25%{transform:rotate(5deg)}60%{transform:rotate(-3deg)}100%{transform:rotate(0)}}
+.hg.mine .tk{background:var(--accent);color:#fff}
+.hg.gone{cursor:default}
+.hg.gone:hover{animation:none}
+.hg.gone .emo{opacity:.18;filter:grayscale(1)}
+.hg.gone .tk{background:none;border:1px dashed var(--muted);color:var(--muted)}
+.foot{font-family:var(--font);font-size:12px;color:var(--muted);text-align:center;margin:0;letter-spacing:.04em}
+.sentinel{height:1px}
+
+/* rail name tags dressed like their card */
+.hg .tk.t1{background:#FBFBF8;color:#C8323B;font:400 12px "Share Tech Mono",monospace;box-shadow:inset 0 -2px #2A3C8F;padding:2px 6px 5px}
+.hg .tk.t2{background:#F1E6CC;color:#2A2622;font:700 11px Oswald,sans-serif;border-radius:3px 3px 6px 6px}
+.hg .tk.t3{background:#A9D9A7;color:#B8322B;font:700 13px Oswald,sans-serif}
+.hg .tk.t4{background:#E7A4C8;color:#2A2426;font:700 11px "Courier Prime",monospace}
+.hg .tk.t5{background:#F2E9CF;color:#2E2F7A;font:400 12px "Share Tech Mono",monospace}
+.hg .tk.t6{background:#FBFAF6;color:#1E1E1E;font:400 12px DotGothic16,monospace;box-shadow:0 0 0 2px #4BA6B8;padding:4px 8px}
+.hg .tk.t7{background:#FFF7A8;color:#111;font:700 10px Archivo,sans-serif;border-radius:6px}
+.hg .tk.t8{background:#fff;color:#333;font:400 11px Marcellus,serif;box-shadow:0 0 0 2px #F4825E}
+.hg .tk.t9{background:#D9C25A;color:#2C4C78;font:700 11px "Courier Prime",monospace}
+.hg .tk.t10{background:#ECE3D2;color:#3166C9;font:700 11px "Courier Prime",monospace;border-radius:4px}
+.hg .tk.t11{background:#F5C6CC;color:#D2262C;font:700 12px Oswald,sans-serif}
+.hg .tk.t12{background:#FBF8EC;color:#111;font:800 11px Archivo,sans-serif;box-shadow:inset 0 3px #6E9A97;padding:7px 7px 3px}
+
+/* sheet */
+.dim{position:fixed;inset:0;background:rgba(20,24,26,.45);display:none;z-index:5}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:90vh;overflow:auto;background:var(--bg);padding:18px max(16px,env(safe-area-inset-left)) 28px;z-index:6;transform:translateY(105%);transition:transform .22s;border-top:2px solid var(--fg);visibility:hidden}
+.open .dim{display:block}.open .sheet{transform:none;visibility:visible}
+.sheet .in{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.metoo{display:flex;align-items:baseline;gap:6px;font:500 14px var(--font);color:var(--fg)}
+.metoo b{font:700 20px var(--font);font-variant-numeric:tabular-nums}
+
+/* ── pad 1: order-pad check — story handwritten on ruled lines, red serial = item no., emoji in the first box ── */
+.chk{--ink:#1D2440;--hs:1;--hf:"Nanum Pen Script","Pretendard Variable",Pretendard,sans-serif;--blue:#2A3C8F;--red:#C8323B;position:relative;align-self:center;width:min(100%,360px);background:#FBFBF8;color:var(--blue);
+  padding:14px 16px 0;transform:rotate(-1deg);box-shadow:0 1px 1px rgba(0,0,0,.18),0 16px 26px -16px rgba(20,24,26,.45);
+  background-image:linear-gradient(170deg,rgba(255,255,255,.6),rgba(255,255,255,0) 30%,rgba(0,0,0,0) 75%,rgba(0,0,0,.05))}
+.chk .ttl{font:400 52px/1 Playball,"Pretendard Variable",Pretendard,sans-serif;text-align:center;margin:2px 0 8px;letter-spacing:.01em;color:var(--blue)}
+.chk .box{display:grid;grid-template-columns:1.1fr .8fr .8fr 1.5fr;border-top:2px solid var(--blue);border-bottom:2px solid var(--blue)}
+.chk .box>div{border-left:1.5px solid var(--blue);padding:3px 4px 4px;min-height:62px;display:flex;flex-direction:column;align-items:center}
+.chk .box>div:first-child{border-left:0}
+.chk .box small{font:700 9px Archivo,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.chk .box .emo{font-size:34px;line-height:1;margin-top:4px}
+.chk .box .hand{font-family:var(--hf);font-size:calc(22px*var(--hs));line-height:1;color:var(--ink);margin-top:10px}
+.chk .serial{font:400 30px/1 "Share Tech Mono",monospace;color:var(--red);margin-top:8px;letter-spacing:.02em;opacity:.9;text-shadow:0 0 1px currentColor}
+.chk .ruled{--lh:38px;margin:0 -16px;background:#ECEDF0;padding:0 16px;
+  background-image:repeating-linear-gradient(transparent 0 calc(var(--lh) - 2px),var(--blue) calc(var(--lh) - 2px) var(--lh))}
+.chk .story{margin:0;height:calc(var(--lh)*9);overflow:hidden;font-family:var(--hf);font-size:calc(26px*var(--hs));line-height:var(--lh);color:var(--ink);white-space:pre-wrap;padding-top:4px;transform:rotate(-.4deg)}
+/* tear-off stub along the perforation */
+.chk .perf{position:relative;height:14px;margin:0 -16px;background:radial-gradient(circle 1.6px,var(--blue) 90%,transparent) 0 50%/9px 4px repeat-x}
+.chk .perf:before,.chk .perf:after{content:"";position:absolute;top:50%;width:11px;height:11px;margin-top:-5.5px;border:1.5px solid #8A8F99;border-radius:50%;background:var(--bg)}
+.chk .perf:before{left:-6px}.chk .perf:after{right:-6px}
+.chk .stub{display:flex;justify-content:space-between;align-items:center;padding:6px 0 12px;font:700 10px Archivo,sans-serif;letter-spacing:.08em;text-transform:uppercase}
+.chk .stub .serial{font-size:18px;margin:0}
+.chk .logo{font:700 11px Archivo,sans-serif;letter-spacing:0;text-transform:none;display:flex;gap:4px;align-items:center}
+.chk .logo i{font-style:normal;display:inline-grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--blue);color:#fff;font-size:9px}
+
+/* pad 2: railway baggage tag — manila card, brown patch with eyelet, black print, red serial, purple rubber stamp */
+.chk.p2{--blue:#2A2622;--red:#D4433A;--ink:#1F2340;background-color:#F1E6CC;color:#2A2622;padding:12px 14px 0;width:min(100%,330px);
+  background-image:linear-gradient(170deg,rgba(255,255,255,.35),rgba(255,255,255,0) 35%,rgba(120,90,40,.0) 70%,rgba(120,90,40,.10));
+  -webkit-mask:radial-gradient(circle 3px at 100% 50%,#0000 95%,#000) 0 0/100% 11px;mask:radial-gradient(circle 3px at 100% 50%,#0000 95%,#000) 0 0/100% 11px}
+.bag .head{display:grid;grid-template-columns:62px 1fr 74px;gap:8px;align-items:start}
+.bag .form{font:700 9px/1.15 Oswald,sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.bag .mark{display:block;margin-top:5px;position:relative;font:700 11px Oswald,sans-serif}
+.bag .mark span{font-size:44px;line-height:1;font-family:system-ui;filter:drop-shadow(0 2px 2px rgba(0,0,0,.15))}
+.bag .patch{justify-self:center;width:110px;height:104px;background:#9A5B45;color:#3B1E14;border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:5px 4px;
+  clip-path:polygon(8% 0,92% 0,100% 8%,100% 92%,92% 100%,8% 100%,0 92%,0 8%);box-shadow:inset 0 0 12px rgba(0,0,0,.25)}
+.bag .patch small{font:700 9px Oswald,sans-serif;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.bag .eye{width:26px;height:26px;border-radius:50%;background:var(--bg);box-shadow:0 0 0 4px #CFCFCB,0 0 0 5px #8E8E88,inset 0 2px 3px rgba(0,0,0,.35)}
+.bag .patch .sn{font:500 20px "Share Tech Mono",monospace;letter-spacing:.04em}
+.bag .side{font:700 9px/1.3 Oswald,sans-serif;text-transform:uppercase;letter-spacing:.03em}
+.bag .side div{border-bottom:1px solid #2A2622;padding:2px 0 6px}
+.bag .line{font:700 17px Oswald,sans-serif;letter-spacing:.22em;text-transform:uppercase;text-align:center;margin:10px 0 4px}
+.bag .fr{display:flex;align-items:center;gap:10px;border-bottom:1.5px solid #2A2622;padding:4px 0;font:500 14px Oswald,sans-serif}
+.bag .fr b{font:500 18px Oswald,sans-serif}
+.bag .fr .hand{font-family:var(--hf);font-size:28px;color:var(--ink);line-height:1}
+.bag .cols{display:grid;grid-template-columns:1fr 1fr;font:700 10px Oswald,sans-serif;text-transform:uppercase;text-align:center;letter-spacing:.04em;padding-top:3px}
+.bag .ruled{--lh:34px;position:relative;margin:0;padding:0;background:transparent;
+  background-image:repeating-linear-gradient(transparent 0 calc(var(--lh) - 1px),#2A262288 calc(var(--lh) - 1px) var(--lh))}
+.bag .ruled .story{height:calc(var(--lh)*7);padding-left:4px}
+.bag .stamp{position:absolute;right:6px;bottom:8px;font:700 20px/1 Oswald,sans-serif;color:#6A4AA8;opacity:.7;transform:rotate(-7deg);text-transform:uppercase;letter-spacing:.02em;text-align:center;pointer-events:none}
+.bag .bot{display:flex;align-items:baseline;gap:10px;padding:8px 0 14px;border-top:1.5px solid #2A2622}
+.bag .ser{border:1.5px solid #2A2622;font:700 9px/1.1 Oswald,sans-serif;text-align:center;padding:2px 4px;text-transform:uppercase}
+.bag .bign{font:700 44px/1 Oswald,sans-serif;letter-spacing:.02em}
+.bag .bign em{font-style:normal;color:var(--red)}
+
+/* pad 3: green parking receipt — huge red number, emoji as a round stamp over its last digits, perforated stub */
+.chk.p3{--blue:#2A3A2E;--red:#B8322B;background-color:#A9D9A7;color:#1F2A22;padding:14px 18px 0;width:min(100%,330px);
+  background-image:radial-gradient(rgba(255,255,255,.18) 1px,transparent 1.5px),linear-gradient(170deg,rgba(255,255,255,.18),rgba(0,0,0,.04));background-size:7px 7px,100% 100%}
+.prk .big{position:relative;font:700 112px/1 Oswald,sans-serif;color:#B8322B;letter-spacing:.01em;text-align:center;margin:4px 0 6px;opacity:.92}
+.prk .seal{position:absolute;right:6%;top:14%;width:82px;height:82px;border-radius:50%;border:3px solid rgba(40,50,140,.7);display:grid;place-items:center;transform:rotate(-12deg);
+  background:rgba(169,217,167,.35);box-shadow:inset 0 0 0 4px rgba(169,217,167,.5),inset 0 0 0 6px rgba(40,50,140,.55)}
+.prk .seal span{font-size:40px;line-height:1;filter:saturate(.8)}
+.prk .tio{display:flex;gap:6px;font:500 12px Arial,Helvetica,sans-serif;align-items:baseline;margin-bottom:6px}
+.prk .tio .u{flex:1;border-bottom:1px solid #1F2A22;font-family:var(--hf);font-size:20px;color:var(--ink);text-align:center;line-height:1}
+.prk .cut{height:10px;margin:0 -18px;background:linear-gradient(90deg,#1F2A2233 50%,transparent 50%) 0 50%/8px 1px repeat-x}
+.prk .stubn{font:700 30px "Courier Prime",monospace;color:#B8322B;text-align:center;margin:10px 0 6px;letter-spacing:.04em}
+.prk .rcp{font:400 18px "Times New Roman",Times,serif;text-align:center;margin-bottom:8px;letter-spacing:.01em}
+.prk .ruled{--lh:30px;margin:0;padding:0;background:transparent}
+.prk .ruled .story{height:calc(var(--lh)*4)}
+.prk .amt{display:flex;gap:6px;font:500 12px Arial,Helvetica,sans-serif;align-items:baseline;padding:10px 0 16px}
+.prk .amt .u{flex:1;border-bottom:1px solid #1F2A22;font-family:var(--hf);font-size:20px;color:var(--ink);text-align:center;line-height:1}
+
+/* pad 5: beige bus ticket — navy stamped type, torn top and bottom, emoji inside the <U1 chevron */
+.chk.p5{--blue:#2E2F7A;--ink:#2E2F7A;background-color:#F2E9CF;color:#2E2F7A;padding:22px 20px 22px;width:min(100%,330px);
+  background-image:linear-gradient(170deg,rgba(255,255,255,.3),rgba(140,110,50,.08));
+  -webkit-mask:radial-gradient(circle 3px at 50% 0,#0000 95%,#000) 0 0/7px 51% repeat-x,radial-gradient(circle 3px at 50% 100%,#0000 95%,#000) 0 100%/7px 51% repeat-x;
+  mask:radial-gradient(circle 3px at 50% 0,#0000 95%,#000) 0 0/7px 51% repeat-x,radial-gradient(circle 3px at 50% 100%,#0000 95%,#000) 0 100%/7px 51% repeat-x}
+.bus{font-family:Archivo,sans-serif}
+.bus .t1{font:700 27px/1.05 Archivo,sans-serif;letter-spacing:-.01em;opacity:.88}
+.bus .t2{font:500 19px/1.2 Archivo,sans-serif;letter-spacing:.06em;opacity:.85;margin-bottom:8px}
+.bus .hdr{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;border-bottom:2px solid #2E2F7A;font:700 12px/1.15 Archivo,sans-serif;padding-bottom:3px;opacity:.88}
+.bus .hdr span+span{border-left:2px solid #2E2F7A;padding-left:6px}
+.bus .vals{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.1fr;font:400 34px "Share Tech Mono",monospace;padding:18px 0 14px;text-align:center;opacity:.85}
+.bus .mid{display:grid;grid-template-columns:1fr 84px;gap:8px;align-items:center;margin-bottom:10px}
+.bus .ruled{--lh:30px;margin:0;padding:0;background:transparent}
+.bus .ruled .story{height:calc(var(--lh)*5)}
+.bus .chev{position:relative;width:84px;height:110px}
+.bus .chev:before{content:"";position:absolute;inset:0;background:linear-gradient(to bottom right,transparent calc(50% - 1.5px),#2E2F7A calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1.5px)) 0 0/100% 50% no-repeat,
+  linear-gradient(to top right,transparent calc(50% - 1.5px),#2E2F7A calc(50% - 1px) calc(50% + 1px),transparent calc(50% + 1.5px)) 0 100%/100% 50% no-repeat;opacity:.85}
+.bus .chev span{position:absolute;left:36px;top:50%;margin-top:-20px;font-size:38px;line-height:1}
+.bus .ftr{display:grid;grid-template-columns:.7fr 1.2fr 1fr 1.2fr;border-bottom:2px solid #2E2F7A;font:700 12px Archivo,sans-serif;padding-bottom:3px;opacity:.88}
+.bus .ftr span+span{border-left:2px solid #2E2F7A;padding-left:6px}
+.bus .fv{display:grid;grid-template-columns:.7fr 1.2fr 1fr 1.2fr;font:400 19px "Share Tech Mono",monospace;padding-top:14px;letter-spacing:.05em;opacity:.85;white-space:nowrap}
+
+/* pad 4: pink seat check — one colour, emoji in the big circle, story where the two top boxes were, months instead of stations */
+.chk.p4{--blue:#2A2426;--pk:#E7A4C8;background:#F7F4EF;color:#2A2426;padding:0;width:min(100%,320px);
+  -webkit-mask:radial-gradient(circle 9px at 0 52%,#0000 95%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 52%,#0000 95%,#000) right/51% 100% no-repeat;
+  mask:radial-gradient(circle 9px at 0 52%,#0000 95%,#000) left/51% 100% no-repeat,radial-gradient(circle 9px at 100% 52%,#0000 95%,#000) right/51% 100% no-repeat}
+.seat .band{background:var(--pk);position:relative}
+.seat .tb{height:112px;clip-path:polygon(6% 0,94% 0,94% 10%,100% 10%,100% 100%,0 100%,0 10%,6% 10%)}
+.seat .tb .em{position:absolute;left:50%;top:14px;margin-left:-38px;width:76px;height:76px;display:grid;place-items:center;font-size:58px;line-height:1;filter:drop-shadow(0 2px 2px rgba(0,0,0,.15))}
+.seat .tb .lt{position:absolute;right:20%;top:12px;font:700 30px "Courier Prime",serif}
+.seat .hole{position:absolute;width:20px;height:20px;border-radius:50%;background:var(--bg);box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+.seat .tb .hole{bottom:12px}.seat .tb .h1{left:12%}.seat .tb .h2{right:12%}
+.seat .body{position:relative;padding:12px 16px 6px}
+.seat .dots{display:flex;gap:6px;margin:0 0 8px 6px}.seat .dots i{width:5px;height:5px;border-radius:50%;background:var(--bg);box-shadow:inset 0 1px 1px rgba(0,0,0,.3)}
+.seat .ruled{--lh:30px;border:2px solid #2A2426;padding:4px 8px;margin:0 0 12px;background:transparent}
+.seat .ruled .story{height:calc(var(--lh)*5)}
+.seat .grid{display:grid;grid-template-columns:repeat(4,1fr);border:2px solid #2A2426;margin-bottom:10px}
+.seat .grid>div{display:flex;flex-direction:column;align-items:center;padding:3px 0;font:700 13px/1.15 "Courier Prime",monospace;letter-spacing:.02em;border-left:2px solid #2A2426}
+.seat .grid>div:nth-child(4n+1){border-left:0}.seat .grid>div:nth-child(n+5){border-top:2px solid #2A2426}
+.seat .grid .r{width:14px;height:14px;border-radius:50%;border:2px solid #2A2426;margin:3px 0;display:grid;place-items:center}
+.seat .grid .r:after{content:"";width:6px;height:6px;border-radius:50%;background:#2A2426}
+.seat .grid .on .r{background:#2A2426;box-shadow:0 0 0 2px var(--pk)}
+.seat .bb{padding:10px 16px 14px;font:700 13px/1.35 "Courier Prime",monospace;text-transform:uppercase;color:#2A2426}
+.seat .bb b{display:block;font:700 30px/1.1 "Courier Prime",monospace;margin-top:6px;letter-spacing:.02em}
+
+/* pad 6: licence stamp card — teal border, red caps, emoji as the tick, dot-matrix number */
+.chk.p6{--ink:#1F2340;background:#FBFAF6;color:#D2262C;padding:14px 16px 12px;width:min(100%,330px);border:6px solid #4BA6B8;border-radius:4px;box-shadow:0 1px 2px rgba(0,0,0,.2),0 14px 24px -14px rgba(20,24,26,.45)}
+.lic .h{font:800 22px/1.05 Archivo,sans-serif;text-align:center;text-transform:uppercase;letter-spacing:.01em}
+.lic ul{list-style:none;margin:10px 0 6px;padding:0;display:grid;gap:4px;font:800 15px/1.2 Archivo,sans-serif;text-transform:uppercase}
+.lic li{display:flex;gap:8px;align-items:center}
+.lic .bx{position:relative;width:14px;height:14px;border:2px solid #D2262C;flex:none}
+.lic .bx .ck{position:absolute;left:-3px;top:-12px;font:400 26px/1 var(--hf);color:#2B3A9A}
+.lic .opts{position:relative}
+.lic .opts .e{position:absolute;right:4px;top:50%;margin-top:-30px;font-size:54px;line-height:1;transform:rotate(-12deg);filter:drop-shadow(0 2px 2px rgba(0,0,0,.15))}
+.lic .ruled{--lh:30px;margin:4px 0 6px;padding:0;background:transparent;border-top:1.5px dashed #D2262C88}
+.lic .ruled .story{height:calc(var(--lh)*5)}
+.lic .num{font:400 50px/1 DotGothic16,monospace;color:#1E1E1E;letter-spacing:.06em;text-align:center}
+
+/* pad 7: pharmacy label — emoji where the pharmacy logo is, yellow rounded warning box holds the story */
+.chk.p7{--ink:#1F2340;background:#FFFFFF;color:#111;padding:14px 16px;width:min(100%,340px);border-radius:14px;box-shadow:0 0 0 1px #ddd,0 14px 24px -14px rgba(20,24,26,.45)}
+.ph .top{display:flex;gap:12px;align-items:flex-start}
+.ph .logo{font-size:50px;line-height:1}
+.ph .nm{font:700 20px/1.1 Archivo,sans-serif;color:#1E78C8}
+.ph .ad{font:400 12px/1.35 Archivo,sans-serif;color:#222;margin-top:2px}
+.ph .pt{font:700 17px/1.2 Archivo,sans-serif;text-transform:uppercase;margin-top:10px}
+.ph .dir{font:400 13px Archivo,sans-serif;text-transform:uppercase;letter-spacing:.02em}
+.ph .meta{display:inline-block;background:#FFF7A8;border-radius:8px;padding:4px 8px;margin:8px 0;font:700 12px Archivo,sans-serif;text-transform:uppercase}
+.ph .warn{background:#FFF7A8;border-radius:14px;padding:8px 12px 6px}
+.ph .warn b{font:800 20px Archivo,sans-serif}
+.ph .warn i{font:italic 700 12px Archivo,sans-serif;text-transform:uppercase}
+.ph .ruled{--lh:30px;margin:4px 0 0;padding:0;background:transparent}
+.ph .ruled .story{height:calc(var(--lh)*5)}
+
+/* pad 8: prescription reminder — orange frame, emoji in the Rx square, coloured bars */
+.chk.p8{--ink:#1F2340;background:#F4825E;color:#333;padding:12px;width:min(100%,340px);box-shadow:0 1px 2px rgba(0,0,0,.2),0 14px 24px -14px rgba(20,24,26,.45)}
+.rx .in{background:#fff;padding:12px 12px 10px}
+.rx .top{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center}
+.rx .sq{width:64px;height:64px;border:6px solid #5A5CF0;border-radius:6px;display:grid;place-items:center;font-size:36px;line-height:1}
+.rx .t1{font:400 12px/1.15 Marcellus,serif;letter-spacing:.14em;text-transform:uppercase;color:#444}
+.rx .t2{font:400 30px/1 Marcellus,serif;letter-spacing:.08em;color:#333;border-bottom:3px solid #F4A07F;padding-bottom:4px;margin-top:2px}
+.rx .row{display:flex;justify-content:space-between;align-items:center;margin:10px 0 2px}
+.rx .chip{background:#FFF566;font:400 12px Marcellus,serif;padding:3px 8px}
+.rx .dr{font:400 13px Marcellus,serif;text-transform:uppercase}
+.rx .ruled{--lh:30px;margin:4px 0 8px;padding:0;background:transparent}
+.rx .ruled .story{height:calc(var(--lh)*5)}
+.rx .bar{font:400 12px Marcellus,serif;text-align:center;text-transform:uppercase;padding:4px;margin-top:4px}
+.rx .g{background:#CCF5A4}.rx .y{background:#FFF566;font-size:14px}
+
+/* pad 9: mustard "hello note" */
+.chk.p9{--ink:#1F2340;background:#D9C25A;color:#1E1E1E;padding:22px 20px 18px;width:min(100%,340px);
+  background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1.5px),linear-gradient(170deg,rgba(255,255,255,.15),rgba(0,0,0,.05));background-size:5px 5px,100% 100%}
+.hn .h{font:700 38px/1 Oswald,sans-serif;text-align:center;letter-spacing:.01em;margin-bottom:14px}
+.hn .r{display:grid;grid-template-columns:1fr 112px;border-block:1.5px solid #1E1E1E}
+.hn .r>div{padding:6px 8px 8px;font:400 17px "Times New Roman",serif}
+.hn .r>div+div{border-left:1.5px solid #1E1E1E}
+.hn .r .emo{font-size:30px;line-height:1;display:block;margin-top:2px}
+.hn .r .v{display:block;font:700 15px "Courier Prime",monospace;color:#2C4C78;margin-top:6px}
+.hn .nl{font:400 17px "Times New Roman",serif;margin:8px 0 2px}
+.hn .ruled{--lh:32px;margin:0;padding:0 4px;background:transparent}
+.hn .ruled .story{height:calc(var(--lh)*6);text-align:center}
+.hn .ad{font:700 14px "Courier Prime",monospace;color:#2C4C78;text-align:center;margin-top:10px;letter-spacing:.04em}
+
+/* pad 10: kraft index card, stacked */
+.chk.p10{--ink:#1B2A55;background:#ECE3D2;color:#3166C9;padding:22px 22px 18px;width:min(100%,330px);border-radius:12px;
+  background-image:radial-gradient(rgba(120,90,50,.35) .6px,transparent 1px),radial-gradient(rgba(60,90,160,.2) .5px,transparent 1px);background-size:13px 11px,17px 19px;
+  box-shadow:3px 3px 0 -1px #E4DBC9,3px 3px 0 0 #CFC5B1,6px 6px 0 -1px #E4DBC9,6px 6px 0 0 #CFC5B1,0 16px 26px -14px rgba(20,24,26,.45)}
+.kc .lb{font:700 13px "Courier Prime",monospace;letter-spacing:.06em;text-transform:uppercase}
+.kc .bx{border:2px solid #3166C9;padding:6px 12px;margin:4px 0 14px;display:flex;align-items:center;gap:12px;min-height:66px}
+.kc .bx .emo{font-size:44px;line-height:1}
+.kc .bx .hand{font-family:"Permanent Marker","Pretendard Variable",Pretendard,sans-serif;font-size:26px;color:var(--ink)}
+.kc .ln{border-bottom:2px solid #3166C9;padding-bottom:3px}
+.kc .val{font-family:var(--hf);font-size:28px;color:var(--ink);margin:8px 0 12px}
+.kc .ruled{--lh:32px;margin:6px 0 0;padding:0;background:transparent}
+.kc .ruled .story{height:calc(var(--lh)*5)}
+.kc .mk{text-align:center;font:700 13px "Courier Prime",monospace;margin-top:6px}
+
+/* pad 11: pink time-stamp note — emoji circles the hour it was left */
+.chk.p11{--ink:#1E1E1E;background:#F5C6CC;color:#2A2A2A;padding:24px 20px 18px;width:min(100%,340px);
+  background-image:linear-gradient(170deg,rgba(255,255,255,.2),rgba(0,0,0,.04))}
+.ts .h{font:500 18px/1.35 Archivo,sans-serif;text-align:center;letter-spacing:.01em}
+.ts .ruled{--lh:34px;margin:14px 0 6px;padding:0;background:transparent}
+.ts .ruled .story{height:calc(var(--lh)*5);font-weight:700}
+.ts .stamp{font:700 24px Oswald,sans-serif;color:#D2262C;text-align:right;margin:6px 6px 12px;opacity:.9}
+.ts .hrs{display:grid;grid-template-columns:34px repeat(12,1fr) 30px;gap:2px 0;font:400 15px Archivo,sans-serif;align-items:center;text-align:center}
+.ts .hrs .on{position:relative}.ts .hrs .on i{position:absolute;left:50%;top:50%;transform:translate(-50%,-52%);font-style:normal;font-size:24px}
+.ts .hrs .on span{opacity:.25}
+
+/* pad 12: sketchbook-style label */
+.chk.p12{--ink:#1F2340;background:#FBF8EC;color:#111;padding:20px 18px 16px;width:min(100%,330px)}
+.sb .in{font:700 13px/1.35 Archivo,sans-serif;text-align:center;margin-bottom:10px}
+.sb .bar{height:9px;background:#6E9A97}
+.sb .ow{font:800 14px Archivo,sans-serif;text-align:center;margin:3px 0 0;text-transform:uppercase}
+.sb .tt{font:800 36px/1 Archivo,sans-serif;text-align:center;letter-spacing:.01em}
+.sb .yr{font:700 20px/1.1 Archivo,sans-serif;text-align:center;margin-bottom:3px}
+.sb .sp{font:500 17px Archivo,sans-serif;text-align:center;margin:8px 0 10px}
+.sb .ruled{--lh:30px;margin:0;padding:0;background:transparent}
+.sb .ruled .story{height:calc(var(--lh)*5)}
+.sb .btm{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.sb .pr{border:1.5px solid #111;padding:2px 8px;display:flex;gap:18px;align-items:baseline;font:500 13px Archivo,sans-serif}
+.sb .pr b{font:500 24px Archivo,sans-serif}.sb .pr b small{font-size:11px}
+.sb .emo{font-size:40px;line-height:1}

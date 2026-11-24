@@ -1,0 +1,9 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 브라우저는 Firestore에 직접 접근하지 않는다. 모든 읽기/쓰기는 api/ (Admin SDK)를 거친다.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
