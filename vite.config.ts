@@ -17,7 +17,7 @@ function apiDev(): Plugin {
 
       server.middlewares.use(async (req: IncomingMessage, res: ServerResponse, next) => {
         const url = new URL(req.url ?? '/', 'http://localhost')
-        const m = url.pathname.match(/^\/api\/([a-z]+)$/) // _로 시작하는 파일(내부용)은 열리지 않는다
+        const m = url.pathname.match(/^\/api\/([a-z]+)$/) ?? (url.pathname === '/admin' ? [null, 'admin'] : null) // _로 시작하는 파일(내부용)은 열리지 않는다. /admin은 vercel.json rewrite와 같다
         if (!m) return next()
 
         const send = (code: number, body: unknown) => {
@@ -45,6 +45,10 @@ function apiDev(): Plugin {
             },
             json(b: unknown) {
               send(res.statusCode || 200, b)
+              return vres
+            },
+            send(b: string) {
+              res.end(b)
               return vres
             },
           })
